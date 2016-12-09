@@ -1,6 +1,7 @@
 package com.example.exchange;
 
 import android.app.DownloadManager;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -27,6 +28,8 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -39,6 +42,7 @@ public class MainActivity extends AppCompatActivity{
     ImageView checkcodeImg;
     String mpassword;
     String sessionId="";
+    String sid;
     Bitmap bitmap;
     boolean connect_finish=false;
    // HttpClient client;
@@ -46,7 +50,7 @@ public class MainActivity extends AppCompatActivity{
 
 
     private final static int CHECK_CODE=111;
-    private final static int LOGIN_CODE=222;
+    private final static int LOGIN_SUCCESS=222;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,16 +60,11 @@ public class MainActivity extends AppCompatActivity{
         checkcode=(EditText)findViewById(R.id.checkcode);
         checkcodeImg=(ImageView)findViewById(R.id.img_checkcode);
         Button login=(Button)findViewById(R.id.login);
-        //client=new OkHttpClient();
-        //client=new DefaultHttpClient();
-        //getCheckCodeWithClient();
         connectElectSystem();
-        //Log.i("miao","miao");
-        checkcodeImg.setOnClickListener(new View.OnClickListener() {
+        checkcodeImg.setOnClickListener(new View.OnClickListener() {    //刷新验证码
             @Override
             public void onClick(View view) {
                 getCheckCode();
-                //getCheckCodeWithClient();
             }
         });
         login.setOnClickListener(new View.OnClickListener() {
@@ -89,77 +88,23 @@ public class MainActivity extends AppCompatActivity{
                         str[k++] = hexDigits[byte0 >>> 4 & 0xf];
                         str[k++] = hexDigits[byte0 & 0xf];
                     }
-                    mpassword=new String(str);
+                    mpassword=new String(str);  //获得密码的密文
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 loginElectSystem();
-                //loginWithClient();
+                Matcher m;
                 //Toast.makeText(MainActivity.this, mpassword, Toast.LENGTH_SHORT).show();
             }
         });
 
     }
-/*
-    private void getCheckCodeWithClient(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    Request request=new Request.Builder().url(checkcodeURL).build();
-                    Response response=client.newCall(request).execute();
-                    InputStream in=response.body().byteStream();
-                    bitmap= BitmapFactory.decodeStream(in);
-                    handler.sendEmptyMessage(CHECK_CODE);
-                    Log.i("response code",""+response.code());
-                    Headers header=response.headers();
-                    for(int i=0;i<header.size();i++){
-                        Log.d("Check "+header.name(i),header.value(i));
-                    }
-                    get_code_finish=true;
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
-
-    private void loginWithClient(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (!get_code_finish);
-                    FormBody.Builder builder=new FormBody.Builder();
-                    builder.add("username", username.getText().toString())
-                            .add("password", mpassword)
-                            .add("j_code", checkcode.getText().toString())
-                            .add("lt", "")
-                            .add("_eventId", "submit")
-                            .add("gateway", "true");
-                    RequestBody formBody=builder.build();
-                    Request request=new Request.Builder()
-                            .url(loginURL)
-                            .post(formBody)
-                            .build();
-                    Response response=client.newCall(request).execute();
-                    Log.i("response code",""+response.code());
-                    Headers header=response.headers();
-                    for(int i=0;i<header.size();i++){
-                        Log.d("Check "+header.name(i),header.value(i));
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
-*/
     private void getCheckCode(){
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
+                    //获得验证码
                     HttpURLConnection cnct=(HttpURLConnection)(new URL(checkcodeURL)).openConnection();
                     if(sessionId.isEmpty()){
                         String cookieValue=cnct.getHeaderField("Set-Cookie");
@@ -169,13 +114,7 @@ public class MainActivity extends AppCompatActivity{
                         cnct.addRequestProperty("Cookie",sessionId);
                     }
 
-                    //String cookieValue=cnct.getHeaderField("Set-Cookie");
-                    //sessionId=cookieValue.substring(0, cookieValue.indexOf(";"));
-                    //cnct.setRequestProperty("Set-Cookie",Cookie);
-                    //Log.d("save cookie",sessionId);
-                    //cnct.addRequestProperty("Cookie",sessionId);
-                    //cnct.connect();
-
+                    //更新验证码到UI
                     InputStream in=cnct.getInputStream();
                     showRequestHeader("check",cnct);
                     bitmap= BitmapFactory.decodeStream(in);
@@ -187,7 +126,7 @@ public class MainActivity extends AppCompatActivity{
         }).start();
     }
 
-    private void connectElectSystem(){
+    private void connectElectSystem(){  //连接主页
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -214,7 +153,7 @@ public class MainActivity extends AppCompatActivity{
             }
         }).start();
     }
-    private void loginElectSystem(){
+    private void loginElectSystem(){    //登录选课系统
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -224,7 +163,7 @@ public class MainActivity extends AppCompatActivity{
                     HttpURLConnection connection;
                     connection=(HttpURLConnection)(new URL(loginURL)).openConnection();
                     connection.addRequestProperty("Cookie",sessionId);
-                    connection.setRequestMethod("POST");//网页默认“GET”提交方式
+                    connection.setRequestMethod("POST");
 
                     StringBuffer sb = new StringBuffer();
                     sb.append("username=").append(username.getText().toString());
@@ -249,8 +188,14 @@ public class MainActivity extends AppCompatActivity{
                         Log.d("body",str);
                     }
                     Log.d("url",connection.getURL().toString());
-                    //取Cookie
-//                    BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+                    String login_url=connection.getURL().toString();
+                    String pattern="(?<=sid=).*";
+                    Pattern p=Pattern.compile(pattern);
+                    Matcher m=p.matcher(login_url);
+                    if(m.find())
+                        sid=m.group();
+                    handler.sendEmptyMessage(LOGIN_SUCCESS);
 
                 }catch (Exception e){
                     e.printStackTrace();
@@ -283,6 +228,18 @@ public class MainActivity extends AppCompatActivity{
                     matrix.postScale(2f,2f); //长和宽放大缩小的比例
                     Bitmap resizeBmp = Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,true);
                     checkcodeImg.setImageBitmap(resizeBmp);
+                    break;
+                case LOGIN_SUCCESS:
+                    Bundle bundle=new Bundle();
+                    bundle.putString("cookie",sessionId);
+                    bundle.putString("sid",sid);
+                    bundle.putString("username",username.getText().toString());
+                    bundle.putString("password",mpassword);
+                    Intent intent=new Intent();
+                    intent.setClass(MainActivity.this,ExchangeActivity.class);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
+                    MainActivity.this.finish();
                     break;
                 default:
                     break;

@@ -4,6 +4,12 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorPrimaryGreen">#005825</color>
+    <color name="lightGreen1">#2BAC63</color>
+    <color name="lightGreen2">#4DAC76</color>
+    <color name="darkGreen">#003919</color>
+    <color name="listBlue">#4F8AA7</color>
+    <color name="listGreen">#89B753</color>
+    <color name="listRed">#BD6B55</color>
     <color name="colorPrimaryWhite">#FFF</color>
     <color name="colorPrimaryBlack">#000</color>
 </resources>

@@ -18,18 +18,22 @@
         <ImageView
             android:layout_width="@dimen/header_height"
             android:layout_height="wrap_content"
+            android:id="@+id/mycourse_img"
             android:src="@mipmap/mycourse"/>
         <ImageView
             android:layout_width="@dimen/header_height"
             android:layout_height="wrap_content"
+            android:id="@+id/platform_img"
             android:src="@mipmap/platform"/>
         <ImageView
             android:layout_width="@dimen/header_height"
             android:layout_height="wrap_content"
+            android:id="@+id/chat_img"
             android:src="@mipmap/chat"/>
         <ImageView
             android:layout_width="@dimen/header_height"
             android:layout_height="wrap_content"
+            android:id="@+id/exchange_img"
             android:src="@mipmap/exchange"/>
     </LinearLayout>
     <ListView
@@ -37,12 +41,12 @@
         android:layout_height="wrap_content"
         android:id="@+id/course_list"
         android:layout_below="@id/header"
-        android:visibility="gone">
+        android:visibility="visible">
     </ListView>
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/message_list"
+        android:id="@+id/friend_list"
         android:layout_below="@id/header"
         android:visibility="gone">
     </ListView>

@@ -44,7 +44,7 @@ public class CourseAdapter extends BaseAdapter {
         }else{
             viewHolder=(ViewHolder)convertView.getTag();
         }
-        viewHolder.courseName.setText((String)list.get(i).get("name"));
+        viewHolder.courseName.setText((String)list.get(i).get("course_name"));
         return convertView;
     }
     private class ViewHolder{

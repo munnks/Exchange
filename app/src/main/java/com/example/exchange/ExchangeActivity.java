@@ -19,7 +19,10 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
     private ImageView mycourse_img,platform_img,chat_img,exchange_img;
     private ListView course_listView;
     private String cookie,sid;
-    private List<Map<String,Object>> simpleCourseList;
+
+    private List<Map<String,Object>> courseList;
+    private CourseAdapter courseAdapter;
+
     private String courseAll;
     private String coursePage;
     private boolean lock=false;
@@ -31,6 +34,8 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
 
     private String username="",password="";
 
+    private int semaphore;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +44,12 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
         init();
         bindButton();
         getCourseAll();
+        database.connect();
+        renewUser();
+        renewCourse();
+        courseList=database.selectCourses(username,true);
+        courseAdapter=new CourseAdapter(this,courseList);
+        course_listView.setAdapter(courseAdapter);
     }
 
     private void init(){
@@ -128,6 +139,7 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
         Pattern p=Pattern.compile(pattern2);
         int i=0;
         Matcher m=p.matcher(courseAll);
+        semaphore=0;
         while(m.find()){
             String str=m.group();
             if(i!=0){
@@ -143,7 +155,35 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
                         course_class_id=m2.group();
                     j++;
                 }
-                getCoursePage(course_class_id);
+                renewCourse(course_class_id,course_select);
+            }
+            i++;
+        }
+        while (semaphore!=0);
+    }
+
+    public void renewCourse(final String course_class_id,final String course_select){
+        semaphore++;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String url="http://uems.sysu.edu.cn/elect/s/courseDet?jxbh="+course_class_id
+                            +"&xnd="+current_xnd+"&xq="+current_xq+"&sid="+sid;
+                    HttpURLConnection connection;
+                    connection=(HttpURLConnection)(new URL(url)).openConnection();
+                    connection.addRequestProperty("Cookie",cookie);
+                    StringBuilder sb = new StringBuilder("");
+                    int c1;
+                    InputStreamReader in =new InputStreamReader(connection.getInputStream());
+                    while ((c1 = in.read()) != -1) {
+                        if(c1!='\t'&&c1!='\n'&&c1!='\r')       //去除空格
+                            sb.append((char) c1);
+                    }
+                    coursePage=sb.toString();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
                 String pattern4="(?<=<td class='val'( colspan='3')?>)[^<]*(?=</td>)";
                 Pattern p4=Pattern.compile(pattern4);
                 Matcher m4=p4.matcher(coursePage);
@@ -183,14 +223,15 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
                     k++;
                 }
                 database.renewCourses(username,course_class_id,course_year,course_semester
-                ,course_id,course_name,course_type,course_department,course_zone,course_teacher
-                ,course_credit,course_remain,course_to_filter,course_time_and_place,course_require
-                , course_class_name,course_english_name,course_capacity,course_hour,course_chosen
-                ,course_real_chosen,course_exam_type,course_filter_type,course_intr,course_comments,course_select);
+                        ,course_id,course_name,course_type,course_department,course_zone,course_teacher
+                        ,course_credit,course_remain,course_to_filter,course_time_and_place,course_require
+                        , course_class_name,course_english_name,course_capacity,course_hour,course_chosen
+                        ,course_real_chosen,course_exam_type,course_filter_type,course_intr,course_comments,course_select);
+                semaphore--;
             }
-            i++;
-        }
+        }).start();
     }
+
 
     public void getCoursePage(final String course_class_id){
         lock=true;
@@ -219,5 +260,6 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
         }).start();
         while (lock);
     }
+
 
 }

@@ -116,25 +116,26 @@ public class ExchangeDatabase {
                 String insertSC="insert into stu_course values('"+
                         user_name+"','"+course_class_id+"','"+
                         "public"+"','"+course_select+"'); ";
-                Log.i("sql",selectSC);
-                Log.i("sql",selectCourse);
-                Log.i("sql",insertCourseB);
-                Log.i("sql",insertCourseI);
-                Log.i("sql",updateCourseB);
-                Log.i("sql",insertSC);
+
+
                 try {
                     Statement stat=conn.createStatement();
+                    Log.i("sql",selectSC);
                     ResultSet rs=stat.executeQuery(selectSC);
                     if(!rs.next()){
+                        Log.i("sql",selectCourse);
                         rs=stat.executeQuery(selectCourse);
                         if(rs.next()){
+                            Log.i("sql",updateCourseB);
                             stat.executeUpdate(updateCourseB);
                         }
                         else{
-
+                            Log.i("sql",insertCourseB);
                             stat.executeUpdate(insertCourseB);
+                            Log.i("sql",insertCourseI);
                             stat.executeUpdate(insertCourseI);
                         }
+                        Log.i("sql",insertSC);
                         stat.executeUpdate(insertSC);
                     }
                     is_success=true;
@@ -149,7 +150,7 @@ public class ExchangeDatabase {
         return is_success;
     }
 
-    public List selectCourses(final String user_name,final boolean isPrivate){
+    public List<Map<String,Object>> selectCourses(final String user_name,final boolean isPrivate){
         data=new ArrayList<>();
         lock=true;
         new Thread(new Runnable() {
@@ -160,11 +161,16 @@ public class ExchangeDatabase {
                 String selectCourseI="select * from course_info where course_class_id in(select course_class_id from stu_course where user_name='"
                         +user_name+"');";
                 String selectSC="select * from stu_course where user_name='"+user_name+"';";
+                Log.d("sql",selectSC);
+                Log.d("sql",selectCourseB);
+                Log.d("sql",selectCourseI);
                 try {
                     Statement stat=conn.createStatement();
                     ResultSet rs1=stat.executeQuery(selectCourseB);
-                    ResultSet rs2=stat.executeQuery(selectCourseI);
-                    ResultSet rs3=stat.executeQuery(selectSC);
+                    Statement stat2=conn.createStatement();
+                    ResultSet rs2=stat2.executeQuery(selectCourseI);
+                    Statement stat3=conn.createStatement();
+                    ResultSet rs3=stat3.executeQuery(selectSC);
                     while (rs1.next()){
                         rs2.next();
                         rs3.next();

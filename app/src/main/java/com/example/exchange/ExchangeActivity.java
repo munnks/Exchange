@@ -1,27 +1,40 @@
 package com.example.exchange;
 
+import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ExchangeActivity extends AppCompatActivity implements View.OnClickListener {
-    private ImageView mycourse_img,platform_img,chat_img,exchange_img;
-    private ListView course_listView;
+    private ImageView mycourse_img,platform_img,chat_img,exchange_img,contacts_img,request_img;
+    private LinearLayout course_layout,platform_layout,chat_layout,exchange_layout,contacts_layout,request_layout,current_layout;
+    boolean layout_flag=true;
+    private ListView course_listView,post_listView;
     private String cookie,sid;
+    private Button new_post,next_page,last_page;
 
     private List<Map<String,Object>> courseList;
+    private List<Map<String,Object>> postList;
     private CourseAdapter courseAdapter;
+    private PostAdapter postAdapter;
 
     private String courseAll;
     private String coursePage;
@@ -36,6 +49,9 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
 
     private int semaphore;
 
+    private int current_page=0;
+    private int num_in_each_page=8;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +62,7 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
         getCourseAll();
         database.connect();
         renewUser();
-        renewCourse();
+        renewCourses();
         courseList=database.selectCourses(username,true);
         courseAdapter=new CourseAdapter(this,courseList);
         course_listView.setAdapter(courseAdapter);
@@ -67,7 +83,22 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
         platform_img=(ImageView)findViewById(R.id.platform_img);
         chat_img=(ImageView)findViewById(R.id.chat_img);
         exchange_img=(ImageView)findViewById(R.id.exchange_img);
+        contacts_img=(ImageView)findViewById(R.id.contacts_img);
+        request_img=(ImageView)findViewById(R.id.request_img);
+
         course_listView=(ListView)findViewById(R.id.course_list);
+        post_listView=(ListView)findViewById(R.id.post_list);
+
+        course_layout=(LinearLayout)findViewById(R.id.course_layout);
+        platform_layout=(LinearLayout)findViewById(R.id.platform_layout);
+        chat_layout=(LinearLayout)findViewById(R.id.chat_layout);
+        exchange_layout=(LinearLayout)findViewById(R.id.exchange_layout);
+        contacts_layout=(LinearLayout)findViewById(R.id.contacts_layout);
+        request_layout=(LinearLayout)findViewById(R.id.request_layout);
+
+        new_post=(Button)findViewById(R.id.new_post);
+        next_page=(Button)findViewById(R.id.next_page);
+        last_page=(Button)findViewById(R.id.last_page);
     }
 
     private void bindButton(){
@@ -75,6 +106,12 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
         platform_img.setOnClickListener(this);
         chat_img.setOnClickListener(this);
         exchange_img.setOnClickListener(this);
+        contacts_img.setOnClickListener(this);
+        request_img.setOnClickListener(this);
+
+        new_post.setOnClickListener(this);
+        next_page.setOnClickListener(this);
+        last_page.setOnClickListener(this);
     }
 
 
@@ -82,10 +119,96 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v){
         switch (v.getId()){
             case R.id.mycourse_img:
-
+                current_layout=course_layout;
+                layout_flag=false;
+            case R.id.platform_img:
+                if(layout_flag){
+                    current_layout=platform_layout;
+                    layout_flag=false;
+                    renewPostList(current_page,num_in_each_page);
+                }
+            case R.id.chat_img:
+                if(layout_flag){
+                    current_layout=chat_layout;
+                    layout_flag=false;
+                }
+            case R.id.exchange_img:
+                if(layout_flag){
+                    current_layout=exchange_layout;
+                    layout_flag=false;
+                }
+            case R.id.contacts_img:
+                if(layout_flag){
+                    current_layout=contacts_layout;
+                    layout_flag=false;
+                }
+            case R.id.request_img:
+                if(layout_flag){
+                    current_layout=request_layout;
+                    layout_flag=false;
+                }
+                course_layout.setVisibility(View.GONE);
+                platform_layout.setVisibility(View.GONE);
+                chat_layout.setVisibility(View.GONE);
+                exchange_layout.setVisibility(View.GONE);
+                contacts_layout.setVisibility(View.GONE);
+                request_layout.setVisibility(View.GONE);
+                current_layout.setVisibility(View.VISIBLE);
+                Drawable drawable=getResources().getDrawable(R.color.colorPrimaryGreen);
+                mycourse_img.setBackground(drawable);
+                platform_img.setBackground(drawable);
+                chat_img.setBackground(drawable);
+                exchange_img.setBackground(drawable);
+                contacts_img.setBackground(drawable);
+                request_img.setBackground(drawable);
+                v.setBackground(getResources().getDrawable(R.color.darkGreen));
+                layout_flag=true;
+                break;
+            case R.id.new_post:
+                LayoutInflater factory=LayoutInflater.from(ExchangeActivity.this);
+                View view2=factory.inflate(R.layout.new_post,null);
+                AlertDialog.Builder builder=new AlertDialog.Builder(ExchangeActivity.this);
+                final EditText editTitle=(EditText)view2.findViewById(R.id.edit_title);
+                final EditText editContent=(EditText)view2.findViewById(R.id.edit_content);
+                builder.setView(view2);
+                builder.setPositiveButton("发布", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        database.insertPost(editTitle.getText().toString()
+                                ,editContent.getText().toString(),username);
+                        renewPostList(current_page,num_in_each_page);
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.setNegativeButton("放弃", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.show();
+                break;
+            case R.id.next_page:
+                current_page++;
+                renewPostList(current_page,num_in_each_page);
+                if(current_page!=0)last_page.setVisibility(View.VISIBLE);
+                break;
+            case R.id.last_page:
+                current_page--;
+                if(current_page<0)current_page=0;
+                renewPostList(current_page,num_in_each_page);
+                if(current_page==0)last_page.setVisibility(View.INVISIBLE);
+                break;
+            default:
                 break;
         }
 
+    }
+
+    public void renewPostList(int pgno,int pgcnt){
+        postList=database.selectPost(pgno,pgcnt);
+        postAdapter=new PostAdapter(this,postList);
+        post_listView.setAdapter(courseAdapter);
     }
 
     public void getCourseAll(){
@@ -133,7 +256,7 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
         database.renewUsers(name,id,username,password);
     }
 
-    public void renewCourse(){
+    public void renewCourses(){
         String pattern1="(?<=<td class='c'>)[^<]*(?=</td>)";
         String pattern2="(?<=\" >).*?(?=</tr>)";
         Pattern p=Pattern.compile(pattern2);
@@ -167,6 +290,10 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
         new Thread(new Runnable() {
             @Override
             public void run() {
+                if(database.findCourse(course_class_id,username)){
+                    semaphore--;
+                    return;
+                }
                 try {
                     String url="http://uems.sysu.edu.cn/elect/s/courseDet?jxbh="+course_class_id
                             +"&xnd="+current_xnd+"&xq="+current_xq+"&sid="+sid;
@@ -222,7 +349,7 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
                     else if(k==23) course_comments=m4.group();
                     k++;
                 }
-                database.renewCourses(username,course_class_id,course_year,course_semester
+                database.renewCourse(username,course_class_id,course_year,course_semester
                         ,course_id,course_name,course_type,course_department,course_zone,course_teacher
                         ,course_credit,course_remain,course_to_filter,course_time_and_place,course_require
                         , course_class_name,course_english_name,course_capacity,course_hour,course_chosen

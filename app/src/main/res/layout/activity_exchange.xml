@@ -14,41 +14,141 @@
         android:background="@color/colorPrimaryGreen"
         android:orientation="horizontal"
         android:id="@+id/header"
-        android:gravity="center">
+        android:gravity="center"
+        android:layout_marginBottom="@dimen/common_padding">
         <ImageView
-            android:layout_width="@dimen/header_height"
+            android:layout_width="@dimen/iron_width"
             android:layout_height="wrap_content"
             android:id="@+id/mycourse_img"
             android:src="@mipmap/mycourse"/>
         <ImageView
-            android:layout_width="@dimen/header_height"
+            android:layout_width="@dimen/iron_width"
             android:layout_height="wrap_content"
             android:id="@+id/platform_img"
             android:src="@mipmap/platform"/>
         <ImageView
-            android:layout_width="@dimen/header_height"
+            android:layout_width="@dimen/iron_width"
             android:layout_height="wrap_content"
             android:id="@+id/chat_img"
             android:src="@mipmap/chat"/>
         <ImageView
-            android:layout_width="@dimen/header_height"
+            android:layout_width="@dimen/iron_width"
             android:layout_height="wrap_content"
             android:id="@+id/exchange_img"
             android:src="@mipmap/exchange"/>
+        <ImageView
+            android:layout_width="@dimen/iron_width"
+            android:layout_height="wrap_content"
+            android:id="@+id/contacts_img"
+            android:src="@mipmap/contacts"/>
+        <ImageView
+            android:layout_width="@dimen/iron_width"
+            android:layout_height="wrap_content"
+            android:id="@+id/request_img"
+            android:src="@mipmap/request"/>
     </LinearLayout>
-    <ListView
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/course_list"
         android:layout_below="@id/header"
-        android:visibility="visible">
-    </ListView>
-    <ListView
+        android:visibility="visible"
+        android:id="@+id/course_layout"
+        android:orientation="vertical">
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/course_list"
+            >
+        </ListView>
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/friend_list"
         android:layout_below="@id/header"
-        android:visibility="gone">
-    </ListView>
+        android:visibility="gone"
+        android:id="@+id/platform_layout"
+        android:orientation="vertical">
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:id="@+id/post_list">
+        </ListView>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="上一页"
+                android:id="@+id/last_page"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/last_page"
+                android:text="下一页"
+                android:id="@+id/next_page"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:text="发布"
+                android:id="@+id/new_post"/>
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/header"
+        android:visibility="gone"
+        android:id="@+id/chat_layout"
+        android:orientation="vertical">
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/header"
+        android:visibility="gone"
+        android:id="@+id/exchange_layout"
+        android:orientation="vertical">
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/header"
+        android:visibility="gone"
+        android:id="@+id/contacts_layout"
+        android:orientation="vertical">
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/friend_list"
+            android:layout_below="@id/header"
+            android:visibility="gone">
+        </ListView>
+
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/header"
+        android:visibility="gone"
+        android:id="@+id/request_layout"
+        android:orientation="vertical">
+
+
+    </LinearLayout>
+
 
 </RelativeLayout>

@@ -390,6 +390,55 @@ public class ExchangeDatabase {
         return data;
     }
 
+    public Map<String,Object> selectStu(final String user_name){
+        tmp=new LinkedHashMap<>();
+        lock=true;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String selectStu="select * from user_stu where user_name='"+user_name+"';";
+                Log.d("sql",selectStu);
+                try {
+                    Statement stat=conn.createStatement();
+                    ResultSet rs1=stat.executeQuery(selectStu);
+                    if (rs1.next()){
+                        tmp.put("stu_name",rs1.getString("stu_name"));
+                        data.add(tmp);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                lock=false;
+            }
+        }).start();
+        while (lock);
+        return tmp;
+    }
+
+    public boolean isFriend(final String user_name1,final String user_name2){
+        is_success=false;
+        lock=true;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String selectContact="select * from contact where contact_a='"+user_name1+"'and contact_b='"+user_name2+"';";
+                Log.d("sql",selectContact);
+                try {
+                    Statement stat=conn.createStatement();
+                    ResultSet rs1=stat.executeQuery(selectContact);
+                    if (rs1.next()){
+                        is_success=true;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                lock=false;
+            }
+        }).start();
+        while (lock);
+        return is_success;
+    }
+
     public List<Map<String,Object>> selectSimpleCourses(final String user_name){
         data=new ArrayList<>();
         lock=true;
@@ -403,6 +452,38 @@ public class ExchangeDatabase {
                     Statement stat=conn.createStatement();
                     ResultSet rs1=stat.executeQuery(selectSQL);
                     while (rs1.next()){
+                        Map<String,Object>tmp=new LinkedHashMap<>();
+                        tmp.put("course_class_id",rs1.getString("course_class_id"));
+                        tmp.put("course_public",rs1.getString("course_public"));
+                        tmp.put("course_select",rs1.getString("course_select"));
+                        tmp.put("course_name",rs1.getString("course_name"));
+                        data.add(tmp);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                lock=false;
+            }
+        }).start();
+        while (lock);
+        return data;
+    }
+
+    public List<Map<String,Object>> selectSimplePublicCourses(final String user_name){
+        data=new ArrayList<>();
+        lock=true;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String selectSQL="select * from stu_course natural join course_basic where user_name='"+user_name
+                        +"';";
+                Log.d("sql",selectSQL);
+                try {
+                    Statement stat=conn.createStatement();
+                    ResultSet rs1=stat.executeQuery(selectSQL);
+                    while (rs1.next()){
+                        if(rs1.getString("course_public").equals("private"))continue;
+                        if(rs1.getString("course_select").equals("选课成功"))continue;
                         Map<String,Object>tmp=new LinkedHashMap<>();
                         tmp.put("course_class_id",rs1.getString("course_class_id"));
                         tmp.put("course_public",rs1.getString("course_public"));

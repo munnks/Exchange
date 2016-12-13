@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.exchange.StudentDetailActivity"
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/title"
+        android:text="标题"
+        android:layout_gravity="center_horizontal"
+        android:textSize="@dimen/big_text"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:text="内容"
+        android:id="@+id/content"/>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/detail">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/big_text"
+        android:text="作者信息" />
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TableRow>
+                <TextView
+                    style="@style/CourseDetailTableTheme"
+                    android:text="姓名：" />
+                <TextView
+                    style="@style/CourseDetailTableContentTheme"
+                    android:id="@+id/name" />
+            </TableRow>
+            <TableRow>
+                <TextView
+                    style="@style/CourseDetailTableTheme"
+                    android:text="学号：" />
+                <TextView
+                    style="@style/CourseDetailTableContentTheme"
+                    android:id="@+id/id" />
+            </TableRow>
+
+        </TableLayout>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:id="@+id/course_list">
+    </ListView>
+    <Button
+        android:layout_marginTop="@dimen/common_padding"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button"/>
+    </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

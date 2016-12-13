@@ -1,12 +1,14 @@
 package com.example.exchange;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -63,7 +65,26 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
         database.connect();
         renewUser();
         renewCourses();
-        courseList=database.selectCourses(username,true);
+        course_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Bundle bundle=new Bundle();
+                bundle.putString("cookie",cookie);
+                bundle.putString("sid",sid);
+                bundle.putString("username",username);
+                bundle.putString("course_class_id",(String)courseList.get(i).get("course_class_id"));
+                Intent intent=new Intent();
+                intent.setClass(ExchangeActivity.this,CourseDetailActivity.class);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        courseList=database.selectSimpleCourses(username);
         courseAdapter=new CourseAdapter(this,courseList);
         course_listView.setAdapter(courseAdapter);
     }
@@ -208,7 +229,7 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
     public void renewPostList(int pgno,int pgcnt){
         postList=database.selectPost(pgno,pgcnt);
         postAdapter=new PostAdapter(this,postList);
-        post_listView.setAdapter(courseAdapter);
+        post_listView.setAdapter(postAdapter);
     }
 
     public void getCourseAll(){
@@ -278,14 +299,14 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
                         course_class_id=m2.group();
                     j++;
                 }
-                renewCourse(course_class_id,course_select);
+                renewSC(course_class_id,course_select);
             }
             i++;
         }
         while (semaphore!=0);
     }
 
-    public void renewCourse(final String course_class_id,final String course_select){
+    public void renewSC(final String course_class_id,final String course_select){
         semaphore++;
         new Thread(new Runnable() {
             @Override

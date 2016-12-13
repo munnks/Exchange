@@ -18,7 +18,9 @@ public class ExchangeDatabase {
     private List<Map<String,Object>> data;
     Map<String,Object>tmp;
 
+
     public ExchangeDatabase(){
+
     }
 
     public boolean connect() {
@@ -44,7 +46,7 @@ public class ExchangeDatabase {
         return is_success;
     }
 
-    public boolean renewUsers(final String stu_name, final String stu_id,
+    public boolean renewUsers(final String stu_name, final String stu_id, //若不存在则插入，若存在则更新
                               final String user_name, final String user_pwd){
         lock=true;
         is_success=false;
@@ -73,7 +75,7 @@ public class ExchangeDatabase {
         return is_success;
     }
 
-    public boolean renewCourse(final String user_name,
+    public boolean renewCourse(final String user_name,          //若不存在则插入，若存在则更新
                                 final String course_class_id, final String course_year,
                                 final String course_semester, final String course_id,
                                 final String course_name,final String course_type,
@@ -151,6 +153,7 @@ public class ExchangeDatabase {
         return is_success;
     }
 
+    //这个函数太蠢了。。用下面那个吧
     public List<Map<String,Object>> selectCourses(final String user_name,final boolean isPrivate){
         data=new ArrayList<>();
         lock=true;
@@ -245,6 +248,7 @@ public class ExchangeDatabase {
     }
 
 
+
     public Map<String,Object> selectCourse(final String course_class_id,final String user_name){
         tmp=new LinkedHashMap<>();
         lock=true;
@@ -310,7 +314,7 @@ public class ExchangeDatabase {
         return tmp;
     }
 
-    public boolean setPublic(final String course_public,final String course_class_id){
+    public boolean setPublic(final String course_public,final String course_class_id,final String user_name){
         lock=true;
         is_success=false;
         new Thread(new Runnable() {
@@ -318,7 +322,7 @@ public class ExchangeDatabase {
             public void run() {
                 String updateSQL="update stu_course set course_public='"+course_public
                         +"' where course_class_id='"
-                        +course_class_id+"';";
+                        +course_class_id+"'and user_name='"+user_name+"';";
                 try {
                     Statement stat=conn.createStatement();
                     stat.executeUpdate(updateSQL);
@@ -363,7 +367,7 @@ public class ExchangeDatabase {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String selectPost="select * from stu_course limit "+pgno*pgcnt+","+pgcnt+";";
+                String selectPost="select * from post limit "+pgno*pgcnt+","+pgcnt+";";
                 Log.d("sql",selectPost);
                 try {
                     Statement stat=conn.createStatement();
@@ -386,14 +390,45 @@ public class ExchangeDatabase {
         return data;
     }
 
+    public List<Map<String,Object>> selectSimpleCourses(final String user_name){
+        data=new ArrayList<>();
+        lock=true;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String selectSQL="select * from stu_course natural join course_basic where user_name='"+user_name
+                        +"';";
+                Log.d("sql",selectSQL);
+                try {
+                    Statement stat=conn.createStatement();
+                    ResultSet rs1=stat.executeQuery(selectSQL);
+                    while (rs1.next()){
+                        Map<String,Object>tmp=new LinkedHashMap<>();
+                        tmp.put("course_class_id",rs1.getString("course_class_id"));
+                        tmp.put("course_public",rs1.getString("course_public"));
+                        tmp.put("course_select",rs1.getString("course_select"));
+                        tmp.put("course_name",rs1.getString("course_name"));
+                        data.add(tmp);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                lock=false;
+            }
+        }).start();
+        while (lock);
+        return data;
+    }
+
     public boolean insertPost(final String title,final String info,final String sender){
         lock=true;
         is_success=false;
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String insertSQL="insert into post values('"+title+"','"+info+"','"
+                String insertSQL="insert into post(post_title,post_info,post_sender) values('"+title+"','"+info+"','"
                         +sender+"'); ";
+                Log.d("sql",insertSQL);
                 try {
                     Statement stat=conn.createStatement();
                     stat.executeUpdate(insertSQL);

@@ -19,6 +19,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ExchangeActivity" />
+        <activity android:name=".CourseDetailActivity"></activity>
     </application>
 
 </manifest>

@@ -49,12 +49,14 @@ public class CourseAdapter extends BaseAdapter {
         String ispublic=(String)list.get(i).get("course_public");
         String select=(String)list.get(i).get("course_select");
         if(select.equals("选课成功")){
-            viewHolder.courseName.setBackground(getResources().getDrawable(R.color.listBlue));
+            viewHolder.courseName.setBackground(convertView.getResources().getDrawable(R.color.listBlue));
         }
-        else if (ispublic.equals("private")){
-            viewHolder.courseName.setBackground(getResources().getDrawable(R.color.listRed));
-        }else{
-            viewHolder.courseName.setBackground(getResources().getDrawable(R.color.listGreen));
+        else{
+            if (ispublic.equals("private")){
+                viewHolder.courseName.setBackground(convertView.getResources().getDrawable(R.color.listRed));
+            }else{
+                viewHolder.courseName.setBackground(convertView.getResources().getDrawable(R.color.listGreen));
+            }
         }
         return convertView;
     }
@@ -62,9 +64,4 @@ public class CourseAdapter extends BaseAdapter {
         public TextView courseName;
     }
 
-    private Resources getResources() {
-        Resources mResources = null;
-        mResources = getResources();
-        return mResources;
-    }
 }

@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -29,12 +30,14 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
     private ImageView mycourse_img,platform_img,chat_img,exchange_img,contacts_img,request_img;
     private LinearLayout course_layout,platform_layout,chat_layout,exchange_layout,contacts_layout,request_layout,current_layout;
     boolean layout_flag=true;
-    private ListView course_listView,post_listView;
+    private ListView course_listView,post_listView,request_listView,contact_listView;
     private String cookie,sid;
     private Button new_post,next_page,last_page;
 
     private List<Map<String,Object>> courseList;
     private List<Map<String,Object>> postList;
+    private List<Map<String,Object>> requestList;
+    private List<Map<String,Object>> contactList;
     private CourseAdapter courseAdapter;
     private PostAdapter postAdapter;
 
@@ -79,6 +82,65 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
                 startActivity(intent);
             }
         });
+        post_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Bundle bundle=new Bundle();
+                bundle.putString("myusername",username);
+                bundle.putString("type","post");
+                bundle.putString("username",(String)postList.get(i).get("post_sender"));
+                bundle.putString("post_id",(String)postList.get(i).get("post_id"));
+                bundle.putString("post_info",(String)postList.get(i).get("post_info"));
+                bundle.putString("post_title",(String)postList.get(i).get("post_title"));
+                Intent intent=new Intent();
+                intent.setClass(ExchangeActivity.this,StudentDetailActivity.class);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
+        request_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                LayoutInflater factory=LayoutInflater.from(ExchangeActivity.this);
+                AlertDialog.Builder builder=new AlertDialog.Builder(ExchangeActivity.this);
+                builder.setTitle((String)requestList.get(i).get("req_type"));
+                builder.setPositiveButton("同意", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        database.becomeFriend(username,(String)requestList.get(i).get("req_sender"));
+                        database.deleteRequest((String)requestList.get(i).get("req_id"));
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.setPositiveButton("拒绝", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        database.deleteRequest((String)requestList.get(i).get("req_id"));
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.setNegativeButton("放弃", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.show();
+            }
+        });
+        contact_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Bundle bundle=new Bundle();
+                bundle.putString("myusername",username);
+                bundle.putString("type","student");
+                bundle.putString("username",(String)contactList.get(i).get("user_name"));
+                Intent intent=new Intent();
+                intent.setClass(ExchangeActivity.this,StudentDetailActivity.class);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -109,6 +171,8 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
 
         course_listView=(ListView)findViewById(R.id.course_list);
         post_listView=(ListView)findViewById(R.id.post_list);
+        request_listView=(ListView)findViewById(R.id.request_list);
+        contact_listView=(ListView)findViewById(R.id.contact_list);
 
         course_layout=(LinearLayout)findViewById(R.id.course_layout);
         platform_layout=(LinearLayout)findViewById(R.id.platform_layout);
@@ -162,11 +226,19 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
                 if(layout_flag){
                     current_layout=contacts_layout;
                     layout_flag=false;
+                    contactList=database.selectContacts(username);
+                    SimpleAdapter simpleAdapter=new SimpleAdapter(ExchangeActivity.this,contactList,R.layout.contact_list_item,
+                            new String[]{"stu_name"},new int[]{R.id.name});
+                    contact_listView.setAdapter(simpleAdapter);
                 }
             case R.id.request_img:
                 if(layout_flag){
                     current_layout=request_layout;
                     layout_flag=false;
+                    requestList=database.selectRequest(username);
+                    SimpleAdapter simpleAdapter=new SimpleAdapter(ExchangeActivity.this,requestList,R.layout.request_list_item,
+                            new String[]{"req_sender","req_type","req_info","req_date","req_time"},new int[]{R.id.name,R.id.title,R.id.content,R.id.date,R.id.time});
+                    request_listView.setAdapter(simpleAdapter);
                 }
                 course_layout.setVisibility(View.GONE);
                 platform_layout.setVisibility(View.GONE);

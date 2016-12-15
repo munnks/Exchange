@@ -60,6 +60,5 @@
             android:layout_height="wrap_content"
             android:id="@+id/register"
             android:text="注册"/>
-
     </LinearLayout>
 </RelativeLayout>

@@ -132,7 +132,7 @@
         <ListView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/friend_list"
+            android:id="@+id/contact_list"
             android:layout_below="@id/header"
             android:visibility="gone">
         </ListView>
@@ -146,6 +146,12 @@
         android:visibility="gone"
         android:id="@+id/request_layout"
         android:orientation="vertical">
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/request_list">
+
+        </ListView>
 
 
     </LinearLayout>

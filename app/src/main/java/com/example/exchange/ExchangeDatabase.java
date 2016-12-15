@@ -6,7 +6,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -373,12 +375,12 @@ public class ExchangeDatabase {
                     Statement stat=conn.createStatement();
                     ResultSet rs1=stat.executeQuery(selectPost);
                     while (rs1.next()){
-                        Map<String,Object>tmp=new LinkedHashMap<>();
-                        tmp.put("post_id",rs1.getString("post_id"));
-                        tmp.put("post_title",rs1.getString("post_title"));
-                        tmp.put("post_info",rs1.getString("post_info"));
-                        tmp.put("post_sender",rs1.getString("post_sender"));
-                        data.add(tmp);
+                        Map<String,Object>tmp2=new LinkedHashMap<>();
+                        tmp2.put("post_id",rs1.getString("post_id"));
+                        tmp2.put("post_title",rs1.getString("post_title"));
+                        tmp2.put("post_info",rs1.getString("post_info"));
+                        tmp2.put("post_sender",rs1.getString("post_sender"));
+                        data.add(tmp2);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -452,12 +454,12 @@ public class ExchangeDatabase {
                     Statement stat=conn.createStatement();
                     ResultSet rs1=stat.executeQuery(selectSQL);
                     while (rs1.next()){
-                        Map<String,Object>tmp=new LinkedHashMap<>();
-                        tmp.put("course_class_id",rs1.getString("course_class_id"));
-                        tmp.put("course_public",rs1.getString("course_public"));
-                        tmp.put("course_select",rs1.getString("course_select"));
-                        tmp.put("course_name",rs1.getString("course_name"));
-                        data.add(tmp);
+                        Map<String,Object>tmp2=new LinkedHashMap<>();
+                        tmp2.put("course_class_id",rs1.getString("course_class_id"));
+                        tmp2.put("course_public",rs1.getString("course_public"));
+                        tmp2.put("course_select",rs1.getString("course_select"));
+                        tmp2.put("course_name",rs1.getString("course_name"));
+                        data.add(tmp2);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -472,6 +474,7 @@ public class ExchangeDatabase {
     public List<Map<String,Object>> selectSimplePublicCourses(final String user_name){
         data=new ArrayList<>();
         lock=true;
+        Log.d("user_name",user_name);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -482,14 +485,20 @@ public class ExchangeDatabase {
                     Statement stat=conn.createStatement();
                     ResultSet rs1=stat.executeQuery(selectSQL);
                     while (rs1.next()){
-                        if(rs1.getString("course_public").equals("private"))continue;
-                        if(rs1.getString("course_select").equals("选课成功"))continue;
-                        Map<String,Object>tmp=new LinkedHashMap<>();
-                        tmp.put("course_class_id",rs1.getString("course_class_id"));
-                        tmp.put("course_public",rs1.getString("course_public"));
-                        tmp.put("course_select",rs1.getString("course_select"));
-                        tmp.put("course_name",rs1.getString("course_name"));
-                        data.add(tmp);
+                        Log.d("course_name",rs1.getString("course_name"));
+                        String course_public=rs1.getString("course_public");
+                        Log.d("course_public",course_public);
+                        String course_select=rs1.getString("course_select");
+                        Log.d("course_select",course_select);
+                        if(course_public.equals("private"))continue;
+                        if(course_select.equals("选课成功"))continue;
+                        Map<String,Object>tmp2=new LinkedHashMap<>();
+                        tmp2.put("course_class_id",rs1.getString("course_class_id"));
+                        tmp2.put("course_public",course_public);
+                        tmp2.put("course_select",course_select);
+                        tmp2.put("course_name",rs1.getString("course_name"));
+                        Log.d("add","course");
+                        data.add(tmp2);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -523,6 +532,183 @@ public class ExchangeDatabase {
         }).start();
         while (lock);
         return is_success;
+    }
+
+    public boolean sendFriendRequest(final String sender,final String receiver,final String content){
+        lock=true;
+        is_success=false;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String insertSQL="insert into request(req_sender,req_receiver,req_type,req_info,req_date,req_time) values('"
+                        +sender+"','"+receiver+"','friend','"+content+"','"+getDate()+"','"+getTime()+"');";
+                Log.d("sql",insertSQL);
+                try {
+                    Statement stat=conn.createStatement();
+                    int a=stat.executeUpdate(insertSQL);
+                    if(a!=0)is_success=true;
+                    Log.d("in","successfully");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                lock=false;
+            }
+        }).start();
+        while (lock);
+        return is_success;
+    }
+
+
+    public List<Map<String,Object>> selectRequest(final String username){
+        data=new ArrayList<>();
+        lock=true;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String selectRequest="select * from request where req_receiver='"+username+"';";
+                Log.d("sql",selectRequest);
+                try {
+                    Statement stat=conn.createStatement();
+                    ResultSet rs1=stat.executeQuery(selectRequest);
+                    while (rs1.next()){
+                        Map<String,Object>tmp2=new LinkedHashMap<>();
+                        tmp2.put("req_id",rs1.getString("req_id"));
+                        tmp2.put("req_sender",rs1.getString("req_sender"));
+                        if(rs1.getString("req_type").equals("friend")){
+                            tmp2.put("req_type","好友请求");
+                        }
+                        else if(rs1.getString("req_type").equals("exchange")){
+                            tmp2.put("req_type","换课请求");
+                        }
+                        else{
+                            tmp2.put("req_type",rs1.getString("req_type"));
+                        }
+                        tmp2.put("req_info",rs1.getString("req_info"));
+                        tmp2.put("req_date",rs1.getString("req_date"));
+                        tmp2.put("req_time",rs1.getString("req_time"));
+                        data.add(tmp2);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                lock=false;
+            }
+        }).start();
+        while (lock);
+        return data;
+    }
+
+    public boolean becomeFriend(final String stu1,final String stu2){
+        lock=true;
+        is_success=false;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String insertSQL="insert into contact values('"+stu1+"','"+stu2+"'),('"+stu2+"','"+stu1+"');";
+                Log.d("sql",insertSQL);
+                try {
+                    Statement stat=conn.createStatement();
+                    int a=stat.executeUpdate(insertSQL);
+                    if(a==2)is_success=true;
+                    Log.d("in","successfully");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                lock=false;
+            }
+        }).start();
+        while (lock);
+        return is_success;
+    }
+
+    public boolean deleteRequest(final String id){
+        lock=true;
+        is_success=false;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String deleteSQL="delete from request where req_id='"+id+"';";
+                Log.d("sql",deleteSQL);
+                try {
+                    Statement stat=conn.createStatement();
+                    int a=stat.executeUpdate(deleteSQL);
+                    if(a==1)is_success=true;
+                    Log.d("in","successfully");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                lock=false;
+            }
+        }).start();
+        while (lock);
+        return is_success;
+    }
+
+    public String getDate(){
+        Date now = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd");
+        return dateFormat.format( now );
+    }
+
+    public String getTime(){
+        Date now = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        return dateFormat.format( now );
+    }
+
+    public List<Map<String,Object>> selectMessageNum(final String username){
+        data=new ArrayList<>();
+        lock=true;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String selectPost="select info_sender, stu_name,count(cache_info) as info_num from info_cache left join user_stu on info_sender=user_name where info_receiver='"+username+"' group by info_sender;";
+                Log.d("sql",selectPost);
+                try {
+                    Statement stat=conn.createStatement();
+                    ResultSet rs1=stat.executeQuery(selectPost);
+                    while (rs1.next()){
+                        Map<String,Object>tmp2=new LinkedHashMap<>();
+                        tmp2.put("info_sender",rs1.getString("info_sender"));
+                        tmp2.put("stu_name",rs1.getString("stu_name"));
+                        tmp2.put("info_num",rs1.getString("info_num"));
+                        data.add(tmp2);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                lock=false;
+            }
+        }).start();
+        while (lock);
+        return data;
+    }
+
+    public List<Map<String,Object>> selectContacts(final String username){
+        data=new ArrayList<>();
+        lock=true;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String selectPost="select user_name,stu_name from contact left join user_stu on contact_b=user_name where contact_a='"+username+"';";
+                Log.d("sql",selectPost);
+                try {
+                    Statement stat=conn.createStatement();
+                    ResultSet rs1=stat.executeQuery(selectPost);
+                    while (rs1.next()){
+                        Map<String,Object>tmp2=new LinkedHashMap<>();
+                        tmp2.put("user_name",rs1.getString("user_name"));
+                        tmp2.put("stu_name",rs1.getString("stu_name"));
+                        data.add(tmp2);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                lock=false;
+            }
+        }).start();
+        while (lock);
+        return data;
     }
 
 

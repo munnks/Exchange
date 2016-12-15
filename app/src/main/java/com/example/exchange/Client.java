@@ -53,7 +53,6 @@ public class Client
                 BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
                 PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
                 String msg;
-
                 while (true)
                 {
                     msg = br.readLine();

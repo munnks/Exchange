@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity{
     String sessionId="";
     String sid;
     Bitmap bitmap;
+    boolean lock;
     boolean connect_finish=false;
    // HttpClient client;
     //OkHttpClient client;
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity{
         checkcodeImg=(ImageView)findViewById(R.id.img_checkcode);
         Button login=(Button)findViewById(R.id.login);
         connectElectSystem();
+        getCheckCode();
         checkcodeImg.setOnClickListener(new View.OnClickListener() {    //刷新验证码
             @Override
             public void onClick(View view) {
@@ -127,6 +129,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void connectElectSystem(){  //连接主页
+        lock=true;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -149,9 +152,10 @@ public class MainActivity extends AppCompatActivity{
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-
+                lock=false;
             }
         }).start();
+        while (lock);
     }
     private void loginElectSystem(){    //登录选课系统
         new Thread(new Runnable() {

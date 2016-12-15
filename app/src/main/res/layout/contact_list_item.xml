@@ -6,5 +6,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/name"
-        android:textSize="@dimen/big_text"/>
+        android:textSize="@dimen/big_text"
+        android:text="haah"/>
 </LinearLayout>

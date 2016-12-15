@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity{
         checkcode=(EditText)findViewById(R.id.checkcode);
         checkcodeImg=(ImageView)findViewById(R.id.img_checkcode);
         Button login=(Button)findViewById(R.id.login);
+        Button quick_login=(Button)findViewById(R.id.quick_login);
         connectElectSystem();
         getCheckCode();
         checkcodeImg.setOnClickListener(new View.OnClickListener() {    //刷新验证码
@@ -97,6 +98,36 @@ public class MainActivity extends AppCompatActivity{
                 loginElectSystem();
                 Matcher m;
                 //Toast.makeText(MainActivity.this, mpassword, Toast.LENGTH_SHORT).show();
+            }
+        });
+        quick_login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {    //快速登录
+                char hexDigits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+                try {
+                    byte[] btInput = password.getText().toString().getBytes();
+                    // 获得MD5摘要算法的 MessageDigest 对象
+                    MessageDigest mdInst = MessageDigest.getInstance("MD5");
+                    // 使用指定的字节更新摘要
+                    mdInst.update(btInput);
+                    // 获得密文
+                    byte[] md = mdInst.digest();
+                    // 把密文转换成十六进制的字符串形式
+                    int j = md.length;
+                    char str[] = new char[j * 2];
+                    int k = 0;
+                    for (int i = 0; i < j; i++) {
+                        byte byte0 = md[i];
+                        str[k++] = hexDigits[byte0 >>> 4 & 0xf];
+                        str[k++] = hexDigits[byte0 & 0xf];
+                    }
+                    mpassword=new String(str);  //获得密码的密文
+                    loginQuickly();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
         });
 
@@ -208,6 +239,25 @@ public class MainActivity extends AppCompatActivity{
         }).start();
     }
 
+    private void loginQuickly(){
+        String id=username.getText().toString();
+        ExchangeDatabase db=new ExchangeDatabase();
+        if(!db.connect())
+            Toast.makeText(MainActivity.this, "无法连接服务器，请稍后重试", Toast.LENGTH_SHORT).show();
+        if(db.validatePassword(username.getText().toString(),mpassword)){
+            Bundle bundle=new Bundle();
+            bundle.putString("mode","quick");
+            bundle.putString("username",username.getText().toString());
+            bundle.putString("password",mpassword);
+            Intent intent=new Intent();
+            intent.setClass(MainActivity.this,ExchangeActivity.class);
+            intent.putExtras(bundle);
+            startActivity(intent);
+            MainActivity.this.finish();
+        }
+
+    }
+
     private void showRequestHeader(String what,HttpURLConnection connection){
         what=what+" ";
         try{
@@ -235,6 +285,7 @@ public class MainActivity extends AppCompatActivity{
                     break;
                 case LOGIN_SUCCESS:
                     Bundle bundle=new Bundle();
+                    bundle.putString("mode","normal");
                     bundle.putString("cookie",sessionId);
                     bundle.putString("sid",sid);
                     bundle.putString("username",username.getText().toString());
@@ -248,7 +299,6 @@ public class MainActivity extends AppCompatActivity{
                 default:
                     break;
             }
-
         }
     };
 }

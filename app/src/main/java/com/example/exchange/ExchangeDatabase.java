@@ -1,6 +1,7 @@
 package com.example.exchange;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -38,6 +39,33 @@ public class ExchangeDatabase {
                     conn = DriverManager.getConnection(connectString, "wt", "1234");
                     is_success=true;
                     Log.d("connect","successfully");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                lock=false;
+            }
+        }).start();
+        while (lock);
+        return is_success;
+    }
+
+    public boolean validatePassword(final String username, final String password){
+        lock=true;
+        is_success=false;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String selectPwd="select user_pwd from user_stu where user_name='"+username+"';";
+                Log.d("sql",selectPwd);
+                try {
+                    Statement stat=conn.createStatement();
+                    ResultSet rs1=stat.executeQuery(selectPwd);
+                    String rpassword="";
+                    while (rs1.next()){
+                        rpassword=rs1.getString("user_pwd");
+                    }
+                    if(password.equals(rpassword))
+                        is_success=true;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -565,7 +593,7 @@ public class ExchangeDatabase {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String selectRequest="select * from request where req_receiver='"+username+"';";
+                String selectRequest="select * from request join user_stu on user_name=req_sender where req_receiver='"+username+"';";
                 Log.d("sql",selectRequest);
                 try {
                     Statement stat=conn.createStatement();
@@ -574,6 +602,7 @@ public class ExchangeDatabase {
                         Map<String,Object>tmp2=new LinkedHashMap<>();
                         tmp2.put("req_id",rs1.getString("req_id"));
                         tmp2.put("req_sender",rs1.getString("req_sender"));
+                        tmp2.put("stu_name",rs1.getString("stu_name"));
                         if(rs1.getString("req_type").equals("friend")){
                             tmp2.put("req_type","好友请求");
                         }
@@ -698,7 +727,9 @@ public class ExchangeDatabase {
                     while (rs1.next()){
                         Map<String,Object>tmp2=new LinkedHashMap<>();
                         tmp2.put("user_name",rs1.getString("user_name"));
+                        Log.d("user_name",rs1.getString("user_name"));
                         tmp2.put("stu_name",rs1.getString("stu_name"));
+                        Log.d("stu_name",rs1.getString("stu_name"));
                         data.add(tmp2);
                     }
                 } catch (Exception e) {

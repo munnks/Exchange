@@ -132,9 +132,7 @@
         <ListView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/contact_list"
-            android:layout_below="@id/header"
-            android:visibility="gone">
+            android:id="@+id/contact_list">
         </ListView>
 
 

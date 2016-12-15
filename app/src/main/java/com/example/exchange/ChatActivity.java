@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -68,12 +69,22 @@ public class ChatActivity extends AppCompatActivity {
         catch (Exception e)
         {
             // TODO: handle exception
+
             Log.e(DEBUG_TAG, e.toString());
+            e.printStackTrace();
+            Toast.makeText(ChatActivity.this, "无法连接服务器", Toast.LENGTH_SHORT).show();
         }
 
-        //初始化
-        mPrintWriter.print("initial"+DIVIDER+myusername);
-        mPrintWriter.flush();
+        try {
+            //初始化
+            mPrintWriter.print("initial"+DIVIDER+myusername);
+            mPrintWriter.flush();
+        }
+        catch (Exception e){
+
+            e.printStackTrace();
+        }
+
 
 
         //发送消息
@@ -102,6 +113,7 @@ public class ChatActivity extends AppCompatActivity {
                 catch (Exception e)
                 {
                     // TODO: handle exception
+                    Toast.makeText(ChatActivity.this, "发送失败", Toast.LENGTH_SHORT).show();
                     Log.e(DEBUG_TAG, e.toString());
                 }
             }

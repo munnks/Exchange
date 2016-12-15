@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CourseDetailActivity extends AppCompatActivity {
-    private String cookie,sid,username,jxbh;
+    private String cookie,sid,username,jxbh,mode;
     private Map<String,Object> course_info;
     private ExchangeDatabase db;
     TextView course_class_id,course_year,course_semester
@@ -27,8 +27,9 @@ public class CourseDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_course_detail);
 
         Bundle bundle=this.getIntent().getExtras();
-        cookie=bundle.getString("cookie");
-        sid=bundle.getString("sid");
+        mode=bundle.getString("mode",mode);
+        if(!mode.equals("quick"))cookie=bundle.getString("cookie");
+        if(!mode.equals("quick"))sid=bundle.getString("sid");
         username=bundle.getString("username");
         jxbh=bundle.getString("course_class_id");
         db=new ExchangeDatabase();

@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -32,6 +33,7 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
     boolean layout_flag=true;
     private ListView course_listView,post_listView,request_listView,contact_listView;
     private String cookie,sid;
+    private String mode="";
     private Button new_post,next_page,last_page;
 
     private List<Map<String,Object>> courseList;
@@ -64,16 +66,17 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
         findView();
         init();
         bindButton();
-        getCourseAll();
+        if(!mode.equals("quick"))getCourseAll();
         database.connect();
-        renewUser();
-        renewCourses();
+        if(!mode.equals("quick"))renewUser();
+        if(!mode.equals("quick"))renewCourses();
         course_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Bundle bundle=new Bundle();
-                bundle.putString("cookie",cookie);
-                bundle.putString("sid",sid);
+                bundle.putString("mode",mode);
+                if(!mode.equals("quick"))bundle.putString("cookie",cookie);
+                if(!mode.equals("quick"))bundle.putString("sid",sid);
                 bundle.putString("username",username);
                 bundle.putString("course_class_id",(String)courseList.get(i).get("course_class_id"));
                 Intent intent=new Intent();
@@ -101,27 +104,22 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
         request_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                final int index=i;
                 LayoutInflater factory=LayoutInflater.from(ExchangeActivity.this);
                 AlertDialog.Builder builder=new AlertDialog.Builder(ExchangeActivity.this);
                 builder.setTitle((String)requestList.get(i).get("req_type"));
                 builder.setPositiveButton("同意", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        database.becomeFriend(username,(String)requestList.get(i).get("req_sender"));
-                        database.deleteRequest((String)requestList.get(i).get("req_id"));
+                        database.becomeFriend(username,(String)requestList.get(index).get("req_sender"));
+                        database.deleteRequest((String)requestList.get(index).get("req_id"));
                         dialogInterface.dismiss();
                     }
                 });
-                builder.setPositiveButton("拒绝", new DialogInterface.OnClickListener() {
+                builder.setNegativeButton("拒绝", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        database.deleteRequest((String)requestList.get(i).get("req_id"));
-                        dialogInterface.dismiss();
-                    }
-                });
-                builder.setNegativeButton("放弃", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
+                        database.deleteRequest((String)requestList.get(index).get("req_id"));
                         dialogInterface.dismiss();
                     }
                 });
@@ -146,19 +144,31 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onResume(){
         super.onResume();
-        courseList=database.selectSimpleCourses(username);
-        courseAdapter=new CourseAdapter(this,courseList);
-        course_listView.setAdapter(courseAdapter);
+        if(current_layout==course_layout){
+            courseList=database.selectSimpleCourses(username);
+            courseAdapter=new CourseAdapter(this,courseList);
+            course_listView.setAdapter(courseAdapter);
+        }else if(current_layout==platform_layout){
+            renewPostList(current_page,num_in_each_page);
+        }else if(current_layout==request_layout){
+            requestList=database.selectRequest(username);
+            SimpleAdapter simpleAdapter=new SimpleAdapter(ExchangeActivity.this,requestList,R.layout.request_list_item,
+                    new String[]{"stu_name","req_type","req_info","req_date","req_time"},new int[]{R.id.name,R.id.title,R.id.content,R.id.date,R.id.time});
+            request_listView.setAdapter(simpleAdapter);
+        }
     }
 
     private void init(){
         Bundle bundle=this.getIntent().getExtras();
-        cookie=bundle.getString("cookie");
-        sid=bundle.getString("sid");
+        mode=bundle.getString("mode");
+        if(!mode.equals("quick"))cookie=bundle.getString("cookie");
+        if(!mode.equals("quick"))sid=bundle.getString("sid");
         username=bundle.getString("username");
         password=bundle.getString("password");
         database=new ExchangeDatabase();
-
+        if(mode.equals("quick"))
+            exchange_img.setVisibility(View.GONE);
+        current_layout=course_layout;
     }
 
     private void findView(){
@@ -227,6 +237,7 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
                     current_layout=contacts_layout;
                     layout_flag=false;
                     contactList=database.selectContacts(username);
+                    Log.d("size",""+contactList.size());
                     SimpleAdapter simpleAdapter=new SimpleAdapter(ExchangeActivity.this,contactList,R.layout.contact_list_item,
                             new String[]{"stu_name"},new int[]{R.id.name});
                     contact_listView.setAdapter(simpleAdapter);
@@ -237,7 +248,7 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
                     layout_flag=false;
                     requestList=database.selectRequest(username);
                     SimpleAdapter simpleAdapter=new SimpleAdapter(ExchangeActivity.this,requestList,R.layout.request_list_item,
-                            new String[]{"req_sender","req_type","req_info","req_date","req_time"},new int[]{R.id.name,R.id.title,R.id.content,R.id.date,R.id.time});
+                            new String[]{"stu_name","req_type","req_info","req_date","req_time"},new int[]{R.id.name,R.id.title,R.id.content,R.id.date,R.id.time});
                     request_listView.setAdapter(simpleAdapter);
                 }
                 course_layout.setVisibility(View.GONE);

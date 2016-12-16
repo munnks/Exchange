@@ -79,6 +79,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/img_checkcode"
+                        android:visibility="invisible"
                         android:minHeight="30dp"
                         android:minWidth="90dp"/>
                 </TableRow>

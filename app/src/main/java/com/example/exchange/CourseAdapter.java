@@ -56,13 +56,13 @@ public class CourseAdapter extends BaseAdapter {
         String select=(String)list.get(i).get("course_select");
         if(select!=null)
         if(select.equals("选课成功")){
-            viewHolder.courseName.setBackground(convertView.getResources().getDrawable(R.color.listBlue));
+            viewHolder.courseName.setBackground(convertView.getResources().getDrawable(R.drawable.course_list_item_background_blue));
         }
         else{
             if (ispublic.equals("private")){
-                viewHolder.courseName.setBackground(convertView.getResources().getDrawable(R.color.listRed));
+                viewHolder.courseName.setBackground(convertView.getResources().getDrawable(R.drawable.course_list_item_background_red));
             }else{
-                viewHolder.courseName.setBackground(convertView.getResources().getDrawable(R.color.listGreen));
+                viewHolder.courseName.setBackground(convertView.getResources().getDrawable(R.drawable.course_list_item_background_green));
             }
         }
         return convertView;

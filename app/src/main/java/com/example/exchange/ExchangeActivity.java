@@ -1,8 +1,11 @@
 package com.example.exchange;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.SimpleAdapter;
 
 import java.io.InputStreamReader;
@@ -31,15 +35,18 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
     private ImageView mycourse_img,platform_img,chat_img,exchange_img,contacts_img,request_img;
     private LinearLayout course_layout,platform_layout,chat_layout,exchange_layout,contacts_layout,request_layout,current_layout;
     boolean layout_flag=true;
-    private ListView course_listView,post_listView,request_listView,contact_listView;
+    private ListView course_listView,post_listView,request_listView,contact_listView,chat_listView;
     private String cookie,sid;
     private String mode="";
     private Button new_post,next_page,last_page;
+    private static final int COURSE_RENEW_CODE=10001,POST_RENEW_CODE=10002,REQUEST_RENEW_CODE=10003,CONTACT_RENEW_CODE=10004,CHAT_RENEW_CODE=10005;
 
     private List<Map<String,Object>> courseList;
     private List<Map<String,Object>> postList;
     private List<Map<String,Object>> requestList;
     private List<Map<String,Object>> contactList;
+    private List<Map<String,Object>> chatList;
+
     private CourseAdapter courseAdapter;
     private PostAdapter postAdapter;
 
@@ -57,7 +64,7 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
     private int semaphore;
 
     private int current_page=0;
-    private int num_in_each_page=8;
+    private int num_in_each_page=4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,9 +118,11 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
                 builder.setPositiveButton("同意", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        database.becomeFriend(username,(String)requestList.get(index).get("req_sender"));
+                        if(requestList.get(index).get("req_type").equals("好友请求"))
+                            database.becomeFriend(username,(String)requestList.get(index).get("req_sender"));
                         database.deleteRequest((String)requestList.get(index).get("req_id"));
                         dialogInterface.dismiss();
+                        mHandler.sendEmptyMessage(POST_RENEW_CODE);
                     }
                 });
                 builder.setNegativeButton("拒绝", new DialogInterface.OnClickListener() {
@@ -121,6 +130,7 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
                     public void onClick(DialogInterface dialogInterface, int i) {
                         database.deleteRequest((String)requestList.get(index).get("req_id"));
                         dialogInterface.dismiss();
+                        mHandler.sendEmptyMessage(POST_RENEW_CODE);
                     }
                 });
                 builder.show();
@@ -139,22 +149,31 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
                 startActivity(intent);
             }
         });
+        chat_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Bundle bundle=new Bundle();
+                bundle.putString("username",username);
+                bundle.putString("myusername",(String)chatList.get(i).get("info_sender"));
+                Intent intent=new Intent();
+                intent.setClass(ExchangeActivity.this,ChatActivity.class);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
     protected void onResume(){
         super.onResume();
         if(current_layout==course_layout){
-            courseList=database.selectSimpleCourses(username);
-            courseAdapter=new CourseAdapter(this,courseList);
-            course_listView.setAdapter(courseAdapter);
+            mHandler.sendEmptyMessage(COURSE_RENEW_CODE);
         }else if(current_layout==platform_layout){
-            renewPostList(current_page,num_in_each_page);
+            mHandler.sendEmptyMessage(POST_RENEW_CODE);
         }else if(current_layout==request_layout){
-            requestList=database.selectRequest(username);
-            SimpleAdapter simpleAdapter=new SimpleAdapter(ExchangeActivity.this,requestList,R.layout.request_list_item,
-                    new String[]{"stu_name","req_type","req_info","req_date","req_time"},new int[]{R.id.name,R.id.title,R.id.content,R.id.date,R.id.time});
-            request_listView.setAdapter(simpleAdapter);
+            mHandler.sendEmptyMessage(REQUEST_RENEW_CODE);
+        }else if(current_layout==chat_layout){
+            mHandler.sendEmptyMessage(CHAT_RENEW_CODE);
         }
     }
 
@@ -183,6 +202,8 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
         post_listView=(ListView)findViewById(R.id.post_list);
         request_listView=(ListView)findViewById(R.id.request_list);
         contact_listView=(ListView)findViewById(R.id.contact_list);
+        chat_listView=(ListView)findViewById(R.id.chat_list);
+
 
         course_layout=(LinearLayout)findViewById(R.id.course_layout);
         platform_layout=(LinearLayout)findViewById(R.id.platform_layout);
@@ -216,16 +237,18 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
             case R.id.mycourse_img:
                 current_layout=course_layout;
                 layout_flag=false;
+                mHandler.sendEmptyMessage(COURSE_RENEW_CODE);
             case R.id.platform_img:
                 if(layout_flag){
                     current_layout=platform_layout;
                     layout_flag=false;
-                    renewPostList(current_page,num_in_each_page);
+                    mHandler.sendEmptyMessage(POST_RENEW_CODE);
                 }
             case R.id.chat_img:
                 if(layout_flag){
                     current_layout=chat_layout;
                     layout_flag=false;
+                    mHandler.sendEmptyMessage(CHAT_RENEW_CODE);
                 }
             case R.id.exchange_img:
                 if(layout_flag){
@@ -236,20 +259,13 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
                 if(layout_flag){
                     current_layout=contacts_layout;
                     layout_flag=false;
-                    contactList=database.selectContacts(username);
-                    Log.d("size",""+contactList.size());
-                    SimpleAdapter simpleAdapter=new SimpleAdapter(ExchangeActivity.this,contactList,R.layout.contact_list_item,
-                            new String[]{"stu_name"},new int[]{R.id.name});
-                    contact_listView.setAdapter(simpleAdapter);
+                    mHandler.sendEmptyMessage(CONTACT_RENEW_CODE);
                 }
             case R.id.request_img:
                 if(layout_flag){
                     current_layout=request_layout;
                     layout_flag=false;
-                    requestList=database.selectRequest(username);
-                    SimpleAdapter simpleAdapter=new SimpleAdapter(ExchangeActivity.this,requestList,R.layout.request_list_item,
-                            new String[]{"stu_name","req_type","req_info","req_date","req_time"},new int[]{R.id.name,R.id.title,R.id.content,R.id.date,R.id.time});
-                    request_listView.setAdapter(simpleAdapter);
+                    mHandler.sendEmptyMessage(REQUEST_RENEW_CODE);
                 }
                 course_layout.setVisibility(View.GONE);
                 platform_layout.setVisibility(View.GONE);
@@ -491,6 +507,46 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
         }).start();
         while (lock);
     }
+
+    Handler mHandler = new Handler()
+    {
+        public void handleMessage(Message msg)
+        {
+            Context context=ExchangeActivity.this.getApplicationContext();
+            switch (msg.what){
+                case COURSE_RENEW_CODE:
+                    courseList=database.selectSimpleCourses(username);
+                    courseAdapter=new CourseAdapter(context,courseList);
+                    course_listView.setAdapter(courseAdapter);
+                    break;
+                case POST_RENEW_CODE:
+                    renewPostList(current_page,num_in_each_page);
+                    break;
+                case REQUEST_RENEW_CODE:
+                    requestList=database.selectRequest(username);
+                    SimpleAdapter simpleAdapter=new SimpleAdapter(ExchangeActivity.this,requestList,R.layout.request_list_item,
+                            new String[]{"stu_name","req_type","req_info","req_date","req_time"},new int[]{R.id.name,R.id.title,R.id.content,R.id.date,R.id.time});
+                    request_listView.setAdapter(simpleAdapter);
+                    break;
+                case CONTACT_RENEW_CODE:
+                    contactList=database.selectContacts(username);
+                    Log.d("size",""+contactList.size());
+                    SimpleAdapter simpleAdapter2=new SimpleAdapter(ExchangeActivity.this,contactList,R.layout.contact_list_item,
+                            new String[]{"stu_name"},new int[]{R.id.name});
+                    contact_listView.setAdapter(simpleAdapter2);
+                    break;
+                case CHAT_RENEW_CODE:
+                    chatList=database.selectMessageNum(username);
+                    SimpleAdapter simpleAdapter3=new SimpleAdapter(ExchangeActivity.this,chatList,R.layout.chat_list_item,
+                            new String[]{"stu_name","info_num"},new int[]{R.id.name,R.id.num});
+                    contact_listView.setAdapter(simpleAdapter3);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    };
 
 
 }

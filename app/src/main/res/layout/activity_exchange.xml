@@ -138,6 +138,7 @@
         android:orientation="vertical">
 
 
+
     </LinearLayout>
 
     <LinearLayout
@@ -147,7 +148,11 @@
         android:visibility="gone"
         android:id="@+id/exchange_layout"
         android:orientation="vertical">
-
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/chat_list">
+        </ListView>
 
     </LinearLayout>
 

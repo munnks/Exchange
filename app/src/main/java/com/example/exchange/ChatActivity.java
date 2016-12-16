@@ -29,7 +29,6 @@ public class ChatActivity extends AppCompatActivity {
     String myusername,username;
     String stu_name;
     ScrollView scrollView;
-    Button connect;
     String str;
     StringBuffer sb;
 
@@ -45,8 +44,7 @@ public class ChatActivity extends AppCompatActivity {
     private  String mStrMSG = "";
     private ExchangeDatabase db;
 
-    private static final int SEND_CODE=1752;
-    private static final int GET_CODE=1596;
+    private static final int SEND_CODE=1752,GET_CODE=1596,CONNECT_FAIL=5789;
 
     boolean lock;
 
@@ -94,6 +92,7 @@ public class ChatActivity extends AppCompatActivity {
                     // TODO: handle exception
                     Log.e(DEBUG_TAG, e.toString());
                     e.printStackTrace();
+                    mHandler.sendEmptyMessage(CONNECT_FAIL);
                     //Toast.makeText(ChatActivity.this, "无法连接服务器", Toast.LENGTH_SHORT).show();
                     //ChatActivity.this.finish();
                 }
@@ -101,44 +100,6 @@ public class ChatActivity extends AppCompatActivity {
             }
         }).start();
 
-        connect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                lock=true;
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //登陆
-                        try
-                        {
-                            //连接服务器
-                            mSocket = new Socket(SERVERIP, SERVERPORT);
-                            //取得输入、输出流
-                            mBufferedReader = new BufferedReader(new InputStreamReader(mSocket.getInputStream(),"GB2312"));
-                            mPrintWriter=new PrintWriter(new OutputStreamWriter(mSocket.getOutputStream(), "GB2312"),true);
-
-                            //启动监听线程
-                            mThread = new Thread(mRunnable);
-                            mThread.start();
-
-                            //初始化
-                            mPrintWriter.println("initial"+DIVIDER+myusername);
-
-                        }
-                        catch (Exception e)
-                        {
-                            // TODO: handle exception
-                            Log.e(DEBUG_TAG, e.toString());
-                            e.printStackTrace();
-                            //Toast.makeText(ChatActivity.this, "无法连接服务器", Toast.LENGTH_SHORT).show();
-                            //ChatActivity.this.finish();
-                        }
-                        lock=false;
-                    }
-                }).start();
-                while (lock);
-            }
-        });
 
         //发送消息
         send.setOnClickListener(new View.OnClickListener()
@@ -174,6 +135,7 @@ public class ChatActivity extends AppCompatActivity {
                         {
                             // TODO: handle exception
                             //Toast.makeText(ChatActivity.this, "发送失败", Toast.LENGTH_SHORT).show();
+                            mHandler.sendEmptyMessage(CONNECT_FAIL);
                             Log.e(DEBUG_TAG, e.toString());
                             e.printStackTrace();
                         }
@@ -229,6 +191,9 @@ public class ChatActivity extends AppCompatActivity {
                     edit.setText("");
                     scrollView.fullScroll(ScrollView.FOCUS_DOWN); //滚动到底部
                     break;
+                case CONNECT_FAIL:
+                    Toast.makeText(ChatActivity.this, "无法连接服务器", Toast.LENGTH_SHORT).show();
+                    break;
                 default:
                     break;
             }
@@ -236,11 +201,12 @@ public class ChatActivity extends AppCompatActivity {
     };
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
         try {
             mPrintWriter.close();
             mBufferedReader.close();
+            mThread.interrupt();
             mThread.stop();
         }catch (Exception e){
             e.printStackTrace();

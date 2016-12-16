@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity{
                 if(b)
                     checkcodeImg.setVisibility(View.VISIBLE);
                 else
-                    checkcodeImg.setVisibility(View.GONE);
+                    checkcodeImg.setVisibility(View.INVISIBLE);
             }
         });
 

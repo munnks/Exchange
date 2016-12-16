@@ -130,6 +130,15 @@ public class MainActivity extends AppCompatActivity{
 
             }
         });
+        checkcode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(b)
+                    checkcodeImg.setVisibility(View.VISIBLE);
+                else
+                    checkcodeImg.setVisibility(View.GONE);
+            }
+        });
 
     }
     private void getCheckCode(){

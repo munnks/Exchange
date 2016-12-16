@@ -1,5 +1,6 @@
 package com.example.exchange;
 
+import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -14,8 +15,11 @@ import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -25,6 +29,9 @@ public class ChatActivity extends AppCompatActivity {
     String myusername,username;
     String stu_name;
     ScrollView scrollView;
+    Button connect;
+    String str;
+    StringBuffer sb;
 
     private final String		DEBUG_TAG	= "chat";
     //服务器IP、端口
@@ -38,6 +45,11 @@ public class ChatActivity extends AppCompatActivity {
     private  String mStrMSG = "";
     private ExchangeDatabase db;
 
+    private static final int SEND_CODE=1752;
+    private static final int GET_CODE=1596;
+
+    boolean lock;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +59,7 @@ public class ChatActivity extends AppCompatActivity {
         name=(TextView)findViewById(R.id.name);
         send=(Button)findViewById(R.id.send);
         scrollView=(ScrollView)findViewById(R.id.scrollView);
+        connect=(Button)findViewById(R.id.connect);
 
         Bundle bundle=this.getIntent().getExtras();
         myusername=bundle.getString("myusername");
@@ -57,83 +70,137 @@ public class ChatActivity extends AppCompatActivity {
         stu_name=(String)db.selectStu(username).get("stu_name");
         name.setText(stu_name);
 
-        //登陆
-        try
-        {
-            //连接服务器
-            mSocket = new Socket(SERVERIP, SERVERPORT);
-            //取得输入、输出流
-            mBufferedReader = new BufferedReader(new InputStreamReader(mSocket.getInputStream()));
-            mPrintWriter=new PrintWriter(mSocket.getOutputStream(), true);
-        }
-        catch (Exception e)
-        {
-            // TODO: handle exception
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //登陆
+                try
+                {
+                    //连接服务器
+                    mSocket = new Socket(SERVERIP, SERVERPORT);
+                    //取得输入、输出流
+                    mBufferedReader = new BufferedReader(new InputStreamReader(mSocket.getInputStream(),"GB2312"));
+                    mPrintWriter=new PrintWriter(new OutputStreamWriter(mSocket.getOutputStream(), "GB2312"),true);
 
-            Log.e(DEBUG_TAG, e.toString());
-            e.printStackTrace();
-            Toast.makeText(ChatActivity.this, "无法连接服务器", Toast.LENGTH_SHORT).show();
-        }
+                    //启动监听线程
+                    mThread = new Thread(mRunnable);
+                    mThread.start();
 
-        try {
-            //初始化
-            mPrintWriter.print("initial"+DIVIDER+myusername);
-            mPrintWriter.flush();
-        }
-        catch (Exception e){
+                    //初始化
+                    mPrintWriter.println("initial"+DIVIDER+myusername);
 
-            e.printStackTrace();
-        }
+                }
+                catch (Exception e)
+                {
+                    // TODO: handle exception
+                    Log.e(DEBUG_TAG, e.toString());
+                    e.printStackTrace();
+                    //Toast.makeText(ChatActivity.this, "无法连接服务器", Toast.LENGTH_SHORT).show();
+                    //ChatActivity.this.finish();
+                }
+                lock=false;
+            }
+        }).start();
 
+        connect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                lock=true;
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //登陆
+                        try
+                        {
+                            //连接服务器
+                            mSocket = new Socket(SERVERIP, SERVERPORT);
+                            //取得输入、输出流
+                            mBufferedReader = new BufferedReader(new InputStreamReader(mSocket.getInputStream(),"GB2312"));
+                            mPrintWriter=new PrintWriter(new OutputStreamWriter(mSocket.getOutputStream(), "GB2312"),true);
 
+                            //启动监听线程
+                            mThread = new Thread(mRunnable);
+                            mThread.start();
+
+                            //初始化
+                            mPrintWriter.println("initial"+DIVIDER+myusername);
+
+                        }
+                        catch (Exception e)
+                        {
+                            // TODO: handle exception
+                            Log.e(DEBUG_TAG, e.toString());
+                            e.printStackTrace();
+                            //Toast.makeText(ChatActivity.this, "无法连接服务器", Toast.LENGTH_SHORT).show();
+                            //ChatActivity.this.finish();
+                        }
+                        lock=false;
+                    }
+                }).start();
+                while (lock);
+            }
+        });
 
         //发送消息
         send.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View v)
             {
-                try
-                {
-                    //取得编辑框中我们输入的内容
-                    String str = edit.getText().toString();
-                    StringBuffer sb=new StringBuffer();
-                    sb.append("msg").append(DIVIDER)
-                            .append(username).append(DIVIDER)
-                            .append(myusername).append(DIVIDER)
-                            .append(str).append(DIVIDER)
-                            .append(db.getDate()).append(DIVIDER)
-                            .append(db.getTime());
-                    //发送给服务器
-                    mPrintWriter.print(str);
-                    mPrintWriter.flush();
-                    history.append(" "+db.getDate()+" "+db.getTime()+"\n我:"+str+"\n");
-                    scrollView.fullScroll(ScrollView.FOCUS_DOWN); //滚动到底部
+                lock=true;
+                //取得编辑框中我们输入的内容
+                str = edit.getText().toString();
+                sb=new StringBuffer();
+                sb.append("msg").append(DIVIDER)
+                        .append(username).append(DIVIDER)
+                        .append(myusername).append(DIVIDER)
+                        .append(str).append(DIVIDER)
+                        .append(db.getDate()).append(DIVIDER)
+                        .append(db.getTime());
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try
+                        {
+                            //发送给服务器
+                            mPrintWriter.println(sb.toString());
+                            Message message=new Message();
+                            message.what=SEND_CODE;
+                            message.obj=" "+db.getDate()+" "+db.getTime()+"\n我:"+str+"\n";
+                            mHandler.sendMessage(message);
 
-                }
-                catch (Exception e)
-                {
-                    // TODO: handle exception
-                    Toast.makeText(ChatActivity.this, "发送失败", Toast.LENGTH_SHORT).show();
-                    Log.e(DEBUG_TAG, e.toString());
-                }
+                            //history.append(" "+db.getDate()+" "+db.getTime()+"\n我:"+str+"\n");
+                            //scrollView.fullScroll(ScrollView.FOCUS_DOWN); //滚动到底部
+                        }
+                        catch (Exception e)
+                        {
+                            // TODO: handle exception
+                            //Toast.makeText(ChatActivity.this, "发送失败", Toast.LENGTH_SHORT).show();
+                            Log.e(DEBUG_TAG, e.toString());
+                            e.printStackTrace();
+                        }
+                        lock=false;
+                    }
+                }).start();
+                while (lock);
             }
         });
-        mThread = new Thread(mRunnable);
-        mThread.start();
+        //mThread = new Thread(mRunnable);
+        //mThread.start();
     }
     //线程:监听服务器发来的消息
     private Runnable	mRunnable	= new Runnable()
     {
         public void run()
         {
-            while (true)
-            {
                 try
                 {
-                    if ( (mStrMSG = mBufferedReader.readLine()) != null )
+                    while ( (mStrMSG = mBufferedReader.readLine()) != null )
                     {
                         //接收消息并处理
-                        mHandler.sendMessage(mHandler.obtainMessage());
+                        Message message=new Message();
+                        message.what=GET_CODE;
+                        message.obj=mStrMSG;
+                        mHandler.sendMessage(message);
                     }
                     // 发送消息
                 }
@@ -141,7 +208,7 @@ public class ChatActivity extends AppCompatActivity {
                 {
                     Log.e(DEBUG_TAG, e.toString());
                 }
-            }
+
         }
     };
 
@@ -149,19 +216,37 @@ public class ChatActivity extends AppCompatActivity {
     {
         public void handleMessage(Message msg)
         {
-            super.handleMessage(msg);
-            // 刷新
-            try
-            {
-                String arr[]=mStrMSG.split(DIVIDER);
-                //将聊天记录添加进来
-                history.append(" "+arr[4]+" "+arr[5]+"\n"+stu_name+":"+arr[3]+"\n");
-                scrollView.fullScroll(ScrollView.FOCUS_DOWN); //滚动到底部
-            }
-            catch (Exception e)
-            {
-                Log.e(DEBUG_TAG, e.toString());
+            switch (msg.what){
+                case GET_CODE:
+                    String tmp=msg.obj.toString();
+                    String arr[]=tmp.split(DIVIDER);
+                    //将聊天记录添加进来
+                    history.append(" "+arr[4]+" "+arr[5]+"\n"+stu_name+":"+arr[3]+"\n");
+                    scrollView.fullScroll(ScrollView.FOCUS_DOWN); //滚动到底部
+                    break;
+                case SEND_CODE:
+                    String tmp2=msg.obj.toString();
+                    history.append(tmp2);
+                    edit.setText("");
+                    scrollView.fullScroll(ScrollView.FOCUS_DOWN); //滚动到底部
+                    break;
+                default:
+                    break;
             }
         }
     };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            mPrintWriter.close();
+            mBufferedReader.close();
+            mThread.stop();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+    }
 }

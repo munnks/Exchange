@@ -7,11 +7,12 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.exchange.ExchangeActivity">
+    tools:context="com.example.exchange.ExchangeActivity"
+    android:background="@color/very_light_green">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/header_height"
-        android:background="@color/colorPrimaryGreen"
+        android:background="@color/lightGreen1"
         android:orientation="horizontal"
         android:id="@+id/header"
         android:gravity="center"
@@ -20,7 +21,8 @@
             android:layout_width="@dimen/iron_width"
             android:layout_height="wrap_content"
             android:id="@+id/mycourse_img"
-            android:src="@mipmap/mycourse"/>
+            android:src="@mipmap/mycourse"
+            android:background="@color/darkGreen"/>
         <ImageView
             android:layout_width="@dimen/iron_width"
             android:layout_height="wrap_content"

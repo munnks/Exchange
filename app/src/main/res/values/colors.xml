@@ -12,4 +12,8 @@
     <color name="listRed">#BD6B55</color>
     <color name="colorPrimaryWhite">#FFF</color>
     <color name="colorPrimaryBlack">#000</color>
+    <color name="touming1">#19FFFFFF</color>
+    <color name="touming3">#4CFFFFFF</color>
+    <color name="touming">#00FFFFFF</color>
+    <color name="very_light_green">#E5EEE9</color>
 </resources>

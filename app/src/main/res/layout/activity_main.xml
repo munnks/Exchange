@@ -7,58 +7,98 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.exchange.MainActivity">
+    tools:context="com.example.exchange.MainActivity"
+    android:background="@mipmap/background">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorPrimaryWhite"
+        android:textSize="40sp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:text="中大换课平台"/>
 
-    <TableLayout
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="150dp"
-        android:id="@+id/login_table">
-        <TableRow>
-            <TextView
-                android:text="用户名:"
-                android:id="@+id/text_username" />
-            <EditText
-                android:width="150dp"
-                android:id="@+id/username"/>
-        </TableRow>
-        <TableRow>
-            <TextView
-                android:text="密码:"
-                android:id="@+id/text_password" />
-            <EditText
-                android:inputType="textPassword"
-                android:id="@+id/password"/>
-        </TableRow>
-        <TableRow>
-            <TextView
-                android:text="验证码:"
-                android:id="@+id/text_captcha" />
-            <EditText
-                android:id="@+id/checkcode"/>
-        </TableRow>
-    </TableLayout>
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/img_checkcode"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/login_table"/>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/img_checkcode"
-        android:layout_centerHorizontal="true">
-        <Button
+        android:layout_centerInParent="true"
+        android:padding="30dp"
+        android:background="@color/touming1">
+        <TableLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/login"
-            android:text="登录"/>
-        <Button
+            android:layout_centerHorizontal="true"
+            android:id="@+id/login_table">
+            <TableRow>
+                <TextView
+                    android:text="用户名:"
+                    android:id="@+id/text_username"
+                    android:visibility="gone"
+                   />
+                <EditText
+                    android:width="150dp"
+                    android:id="@+id/username"
+                    android:gravity="center"
+                    android:background="@color/touming"
+                    android:height="30dp"
+                    android:hint="请输入用户名"
+                    android:layout_marginBottom="@dimen/little_padding"/>
+            </TableRow>
+            <TableRow>
+                <TextView
+                    android:text="密码:"
+                    android:id="@+id/text_password"
+                    android:visibility="gone"/>
+                <EditText
+                    android:inputType="textPassword"
+                    android:id="@+id/password"
+                    android:hint="请输入密码"
+                    android:gravity="center"
+                    android:background="@color/touming"
+                    android:height="30dp"
+                    android:layout_marginBottom="@dimen/little_padding"/>
+            </TableRow>
+            <TableRow>
+                <TextView
+                    android:text="验证码:"
+                    android:id="@+id/text_captcha"
+                    android:visibility="gone"/>
+                <EditText
+                    android:id="@+id/checkcode"
+                    android:gravity="center"
+                    android:hint="请输入验证码"
+                    android:background="@color/touming"
+                    android:height="30dp"/>
+            </TableRow>
+        </TableLayout>
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/quick_login"
-            android:text="快速登录"/>
-    </LinearLayout>
+            android:id="@+id/img_checkcode"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/login_table"
+            android:layout_margin="@dimen/little_padding"
+            android:visibility="gone"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/img_checkcode"
+            android:layout_centerHorizontal="true">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/login"
+                android:text="登录"
+                android:background="@color/touming3"/>
+            <Button
+                android:layout_marginLeft="@dimen/little_padding"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/quick_login"
+                android:text="快速登录"
+                android:background="@color/touming3"/>
+        </LinearLayout>
+
+    </RelativeLayout>
+
 </RelativeLayout>

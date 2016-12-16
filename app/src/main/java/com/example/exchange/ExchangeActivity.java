@@ -258,7 +258,7 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
                 contacts_layout.setVisibility(View.GONE);
                 request_layout.setVisibility(View.GONE);
                 current_layout.setVisibility(View.VISIBLE);
-                Drawable drawable=getResources().getDrawable(R.color.touming);
+                Drawable drawable=getResources().getDrawable(R.color.colorPrimaryGreen);
                 mycourse_img.setBackground(drawable);
                 platform_img.setBackground(drawable);
                 chat_img.setBackground(drawable);

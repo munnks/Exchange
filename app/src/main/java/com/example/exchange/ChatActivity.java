@@ -59,7 +59,6 @@ public class ChatActivity extends AppCompatActivity {
         name=(TextView)findViewById(R.id.name);
         send=(Button)findViewById(R.id.send);
         scrollView=(ScrollView)findViewById(R.id.scrollView);
-        connect=(Button)findViewById(R.id.connect);
 
         Bundle bundle=this.getIntent().getExtras();
         myusername=bundle.getString("myusername");

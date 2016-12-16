@@ -9,7 +9,8 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.exchange.StudentDetailActivity"
     android:orientation="vertical"
-    android:gravity="center_horizontal">
+    android:gravity="center_horizontal"
+    android:background="@drawable/list_background">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,61 +18,71 @@
         android:text="标题"
         android:layout_gravity="center_horizontal"
         android:textSize="@dimen/big_text"/>
+
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="match_parent"
+        android:layout_weight="2"
+        android:padding="5dp"
         android:text="内容"
         android:textSize="@dimen/main_text"
+        android:background="@drawable/post_list_item_background"
         android:id="@+id/content"/>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/detail">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:fillViewport="true"
+        android:id="@+id/detail"
+        android:layout_weight="1">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/big_text"
-        android:text="学生信息" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/big_text"
+                    android:text="学生信息" />
 
-        <TableLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <TableRow>
-                <TextView
-                    style="@style/CourseDetailTableTheme"
-                    android:text="姓名：" />
-                <TextView
-                    style="@style/CourseDetailTableContentTheme"
-                    android:id="@+id/name" />
-            </TableRow>
-            <TableRow>
-                <TextView
-                    style="@style/CourseDetailTableTheme"
-                    android:text="学号：" />
-                <TextView
-                    style="@style/CourseDetailTableContentTheme"
-                    android:id="@+id/id" />
-            </TableRow>
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="5dp">
+                    <TableRow>
+                        <TextView
+                            style="@style/CourseDetailTableTheme"
+                            android:text="姓名：" />
+                        <TextView
+                            style="@style/CourseDetailTableContentTheme"
+                            android:id="@+id/name" />
+                    </TableRow>
+                    <TableRow>
+                        <TextView
+                            style="@style/CourseDetailTableTheme"
+                            android:text="学号：" />
+                        <TextView
+                            style="@style/CourseDetailTableContentTheme"
+                            android:id="@+id/id" />
+                    </TableRow>
 
-        </TableLayout>
+                </TableLayout>
 
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:id="@+id/course_list">
-    </ListView>
-    <Button
-        android:layout_marginTop="@dimen/common_padding"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/button"/>
-    </LinearLayout>
+                <ListView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/course_list"
+                    android:layout_weight="1">
+                </ListView>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/button"
+                    android:textColor="@color/colorPrimaryWhite"
+                    android:background="@drawable/send_message_button"/>
+            </LinearLayout>
     </ScrollView>
 
 </LinearLayout>

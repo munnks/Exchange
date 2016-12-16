@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@mipmap/main_background"
     tools:context="com.example.exchange.ExchangeActivity">
     <LinearLayout
         android:layout_width="match_parent"
@@ -57,36 +58,38 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@id/header"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:visibility="gone"
         android:id="@+id/course_layout"
-        android:background="@drawable/course_list_background"
+        android:background="@drawable/list_background"
         android:orientation="vertical">
         <ListView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:paddingTop="20dp"
             android:paddingBottom="20dp"
             android:id="@+id/course_list"
-            >
+            android:layout_weight="1">
         </ListView>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@id/header"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:visibility="gone"
         android:id="@+id/chat_layout"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@drawable/list_background">
+
         <ListView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:id="@+id/chat_list">
 
         </ListView>
@@ -95,7 +98,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@id/header"
         android:visibility="gone"
         android:id="@+id/exchange_layout"
@@ -106,14 +109,16 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@id/header"
         android:visibility="gone"
         android:id="@+id/contacts_layout"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@drawable/list_background">
         <ListView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="15dp"
             android:id="@+id/contact_list">
         </ListView>
 
@@ -121,14 +126,17 @@
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@id/header"
         android:visibility="gone"
         android:id="@+id/request_layout"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@drawable/list_background">
+
         <ListView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="15dp"
             android:id="@+id/request_list">
 
         </ListView>

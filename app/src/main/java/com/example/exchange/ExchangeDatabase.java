@@ -699,8 +699,11 @@ public class ExchangeDatabase {
                     while (rs1.next()){
                         Map<String,Object>tmp2=new LinkedHashMap<>();
                         tmp2.put("info_sender",rs1.getString("info_sender"));
+                        Log.d("info_sender",rs1.getString("info_sender"));
                         tmp2.put("stu_name",rs1.getString("stu_name"));
+                        Log.d("stu_name",rs1.getString("stu_name"));
                         tmp2.put("info_num","未读消息："+rs1.getString("info_num")+"条");
+                        Log.d("info_num","未读消息："+rs1.getString("info_num")+"条");
                         data.add(tmp2);
                     }
                 } catch (Exception e) {

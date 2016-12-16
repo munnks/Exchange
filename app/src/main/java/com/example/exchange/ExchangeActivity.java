@@ -153,8 +153,8 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Bundle bundle=new Bundle();
-                bundle.putString("username",username);
-                bundle.putString("myusername",(String)chatList.get(i).get("info_sender"));
+                bundle.putString("username",(String)chatList.get(i).get("info_sender"));
+                bundle.putString("myusername",username);
                 Intent intent=new Intent();
                 intent.setClass(ExchangeActivity.this,ChatActivity.class);
                 intent.putExtras(bundle);
@@ -539,7 +539,7 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
                     chatList=database.selectMessageNum(username);
                     SimpleAdapter simpleAdapter3=new SimpleAdapter(ExchangeActivity.this,chatList,R.layout.chat_list_item,
                             new String[]{"stu_name","info_num"},new int[]{R.id.name,R.id.num});
-                    contact_listView.setAdapter(simpleAdapter3);
+                    chat_listView.setAdapter(simpleAdapter3);
                     break;
 
                 default:

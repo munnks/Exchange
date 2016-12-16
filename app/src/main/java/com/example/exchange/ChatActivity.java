@@ -155,8 +155,10 @@ public class ChatActivity extends AppCompatActivity {
         {
                 try
                 {
-                    while ( (mStrMSG = mBufferedReader.readLine()) != null )
+                    while (true)
+                    if ( (mStrMSG = mBufferedReader.readLine()) != null )
                     {
+                        Log.d("get",mStrMSG);
                         //接收消息并处理
                         Message message=new Message();
                         message.what=GET_CODE;
@@ -168,6 +170,7 @@ public class ChatActivity extends AppCompatActivity {
                 catch (Exception e)
                 {
                     Log.e(DEBUG_TAG, e.toString());
+                    e.printStackTrace();
                 }
 
         }
@@ -181,6 +184,7 @@ public class ChatActivity extends AppCompatActivity {
                 case GET_CODE:
                     String tmp=msg.obj.toString();
                     String arr[]=tmp.split(DIVIDER);
+                    if(arr.length!=6)break;
                     //将聊天记录添加进来
                     history.append(" "+arr[4]+" "+arr[5]+"\n"+stu_name+":"+arr[3]+"\n");
                     scrollView.fullScroll(ScrollView.FOCUS_DOWN); //滚动到底部

@@ -74,32 +74,10 @@ public class Server
         public ThreadServer(Socket socket) throws IOException
         {
             this.mSocket = socket;
-            mBufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream(),"GB2312"));
+            mBufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream(),"gb2312"));
             System.out.println("user: "+this.mSocket.getInetAddress()+" come, total:" + mClientList.size());
         }
-/*
-        public int findIndex(){
-            int find=-1;
-            for(int index=0;index<mClientList.size();index++){
-                if(mClientList.get(index).get("client")==this.mSocket){
-                    find=index;
-                    break;
-                }
-            }
-            return find;
-        }
 
-        public int findClientIndexByUsername(String username){
-            int find=-1;
-            for(int index=0;index<mClientList.size();index++){
-                if(mClientList.get(index).get("username").equals(username)){
-                    find=index;
-                    break;
-                }
-            }
-            return find;
-        }
-*/
         public boolean putInCache(String receiver,String sender,String content,String date,String time){
             String insertSQL="insert into info_cache values('"+sender+"','"
                     +receiver+"','"+content+"','"+date+"','"+time+"');";
@@ -232,4 +210,6 @@ public class Server
 
 
 }
+
+
 

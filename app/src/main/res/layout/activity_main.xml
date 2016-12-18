@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/list_background"
     tools:context="com.example.exchange.MainActivity">
 
     <RelativeLayout
@@ -25,6 +24,7 @@
     </RelativeLayout>
 
     <LinearLayout
+        android:background="@drawable/list_background"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

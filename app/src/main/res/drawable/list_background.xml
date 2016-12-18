@@ -1,5 +1,4 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <stroke android:width="20px"
         android:color="@color/colorPrimaryGreen"/>
-    <solid android:color="#eee" /><!-- item颜色 -->
 </shape>

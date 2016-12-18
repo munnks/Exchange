@@ -104,6 +104,7 @@ public class CourseDetailActivity extends AppCompatActivity {
         course_intr.setText((String)course_info.get("course_intr"));
         course_comments.setText((String)course_info.get("course_comments"));
         course_select.setText((String)course_info.get("course_select"));
+        if(course_info.get("course_public")!=null)
         if(course_info.get("course_public").equals("public")){
             course_public.setChecked(true);
         }

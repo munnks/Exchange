@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -105,6 +106,20 @@ public class StudentDetailActivity extends AppCompatActivity {
                     });
                     builder.show();
                 }
+            }
+        });
+        courseList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String mode="quick";
+                Bundle bundle=new Bundle();
+                bundle.putString("mode",mode);
+                bundle.putString("username",myusername);
+                bundle.putString("course_class_id",(String)data.get(i).get("course_class_id"));
+                Intent intent=new Intent();
+                intent.setClass(StudentDetailActivity.this,CourseDetailActivity.class);
+                intent.putExtras(bundle);
+                startActivity(intent);
             }
         });
     }

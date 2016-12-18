@@ -80,9 +80,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/header"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:visibility="gone"
+        android:visibility="visible"
         android:id="@+id/chat_layout"
         android:orientation="vertical"
         android:background="@drawable/list_background">
@@ -90,6 +88,7 @@
         <ListView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:padding="15dp"
             android:id="@+id/chat_list">
 
         </ListView>
@@ -147,7 +146,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible"
+        android:visibility="gone"
         android:id="@+id/platform_layout"
         android:layout_below="@id/header"
         android:orientation="vertical"
@@ -176,16 +175,16 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginRight="60dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
                 android:background="@drawable/pre_page_button"
                 android:id="@+id/last_page"
                 android:visibility="invisible" />
             <Button
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
                 android:background="@drawable/next_page_button"
                 android:layout_toRightOf="@id/last_page"
                 android:id="@+id/next_page"/>
@@ -193,8 +192,8 @@
                 android:layout_width="40dp"
                 android:layout_height="30dp"
                 android:layout_alignParentRight="true"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
                 android:layout_marginRight="30dp"
                 android:background="@drawable/broadcast_button"
                 android:id="@+id/new_post"/>

@@ -122,7 +122,7 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
                             database.becomeFriend(username,(String)requestList.get(index).get("req_sender"));
                         database.deleteRequest((String)requestList.get(index).get("req_id"));
                         dialogInterface.dismiss();
-                        mHandler.sendEmptyMessage(POST_RENEW_CODE);
+                        mHandler.sendEmptyMessage(REQUEST_RENEW_CODE);
                     }
                 });
                 builder.setNegativeButton("拒绝", new DialogInterface.OnClickListener() {
@@ -130,7 +130,7 @@ public class ExchangeActivity extends AppCompatActivity implements View.OnClickL
                     public void onClick(DialogInterface dialogInterface, int i) {
                         database.deleteRequest((String)requestList.get(index).get("req_id"));
                         dialogInterface.dismiss();
-                        mHandler.sendEmptyMessage(POST_RENEW_CODE);
+                        mHandler.sendEmptyMessage(REQUEST_RENEW_CODE);
                     }
                 });
                 builder.show();

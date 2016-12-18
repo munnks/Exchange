@@ -32,6 +32,7 @@
 
     </RelativeLayout>
 
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -39,6 +40,7 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
+        android:background="@color/colorPrimaryGreen"
         android:id="@+id/footer"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true">
@@ -48,18 +50,28 @@
             android:layout_height="30dp"
             android:id="@+id/send"
             android:background="@drawable/send_message_send_button"
-            android:layout_marginLeft="5dp"
-            android:layout_marginEnd="13dp"
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true" />
+
         <EditText
-            android:layout_toLeftOf="@id/send"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:paddingRight="10dp"
             android:textSize="@dimen/main_text"
-            android:id="@+id/edit"/>
+            android:id="@+id/edit"
+            android:layout_alignParentTop="true"
+            android:layout_toStartOf="@+id/send"
+            android:textColor="@color/colorPrimaryWhite"
+            android:layout_marginEnd="18dp" />
 
     </RelativeLayout>
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="@color/colorPrimaryGreen"
+        android:layout_above="@id/footer"/>
 
     <ScrollView
         android:layout_below="@id/header"
